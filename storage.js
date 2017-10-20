@@ -14,20 +14,6 @@ module.exports = {
 	connected: function () {
 		return (mongoose.connection.readyState == 1);
 	},
-	getFriends: function (userId, cb) {
-		var cursor = database.collection('friends').find({
-			for_user: userId
-		});
-
-		cursor.toArray(cb);
-	},
-	insertFriends: function (friends) {
-		database.collection('friends').insert(friends, function (err) {
-			if (err) {
-				console.log("Cannot insert friends to database: " + err);
-			}
-		});
-	},
 	findOrCreateUser: function (profile, callback) {
 		var user = new User();
 		console.log(profile);
@@ -55,7 +41,5 @@ module.exports = {
 				}
 			}
 		);
-
-
 	}
 }
