@@ -30,7 +30,7 @@ app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveU
 //app.use(require('morgan')('combined'));
 app.use(require('body-parser').urlencoded({ extended: true }));
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
 	res.redirect('/login');
 });
 
@@ -39,68 +39,68 @@ authRouter.get('/twitter', authenticator.redirectToTwitterLoginPage);
 
 passport.use(new FacebookStrategy({
 	clientID: 605136869876985,
-    clientSecret: 'ec15550f963b5415755158a4ed45503a',
-    callbackURL: "http://localhost:8080/auth/facebook/callback"
-  },
-  function(accessToken, refreshToken, profile, cb) {
-	//console.log(profile);
-	storage.findOrCreateUser(profile, function (err, user) {
-		return cb(err, user);
-	});
-  }
+	clientSecret: 'ec15550f963b5415755158a4ed45503a',
+	callbackURL: "http://localhost:8080/auth/facebook/callback"
+},
+	function (accessToken, refreshToken, profile, cb) {
+		//console.log(profile);
+		storage.findOrCreateUser(profile, function (err, user) {
+			return cb(err, user);
+		});
+	}
 ));
 
-app.post('/', function(req, res){
-	  // Create a new instance of the Beer model
+app.post('/', function (req, res) {
+	// Create a new instance of the Beer model
 	var user = new User();
-	
+
 	// Set the beer properties that came from the POST data
 	user.facebookId = 123;
 	user.username = 'AliBaba';
-	
+
 	// Save the beer and check for errors
-	user.save(function(err) {
-		if (err){
+	user.save(function (err) {
+		if (err) {
 			res.send(err);
 		}
-	
+
 		res.json({ message: 'User added to the locker!', data: user });
 	});
-	  
+
 });
 
-passport.serializeUser(function(user, cb) {
+passport.serializeUser(function (user, cb) {
 	cb(null, user);
 });
 
-passport.deserializeUser(function(obj, cb) {
+passport.deserializeUser(function (obj, cb) {
 	cb(null, obj);
 });
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-authRouter.get('/facebook', 
+authRouter.get('/facebook',
 	passport.authenticate('facebook')
 );
 
-authRouter.get('/facebook/callback', 
+authRouter.get('/facebook/callback',
 	passport.authenticate('facebook', { failureRedirect: '/login' }),
-	function(req, res) {
+	function (req, res) {
 		console.log("Successful authenticated");
-  		res.redirect('/profile');
+		res.redirect('/profile');
 	}
 );
 
 app.get('/profile',
 	ensureLoggedIn.ensureLoggedIn(),
-	function(req, res){
+	function (req, res) {
 		res.render('profile', { user: req.user });
 	}
 );
 
 // Main page handler
-app.get('/neverdothat', function(req, res) {
+app.get('/neverdothat', function (req, res) {
 	if (!req.cookies.access_token || !req.cookies.access_token_secret || !req.cookies.twitter_id) {
 		return res.redirect('/login');
 	}
@@ -110,7 +110,7 @@ app.get('/neverdothat', function(req, res) {
 		return renderMainPageFromTwitter(req, res);
 	}
 
-	storage.getFriends(req.cookies.twitter_id, function(err, friends) {
+	storage.getFriends(req.cookies.twitter_id, function (err, friends) {
 		if (err) {
 			return res.status(500).send(err);
 		}
@@ -119,7 +119,7 @@ app.get('/neverdothat', function(req, res) {
 			console.log("Data loaded from MongoDB");
 
 			// Sort the friends alphabetically by name
-			friends.sort(function(a, b) {
+			friends.sort(function (a, b) {
 				return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 			});
 
@@ -134,7 +134,7 @@ app.get('/neverdothat', function(req, res) {
 });
 
 // Show the login page
-app.get('/login', function(req, res) {
+app.get('/login', function (req, res) {
 	res.render('login');
 });
 
@@ -144,6 +144,6 @@ app.use(express.static(__dirname + '/public'));
 app.use('/auth', authRouter);
 
 // Start listening for requests
-app.listen(config.port, function() {
+app.listen(config.port, function () {
 	console.log("Listening on port " + config.port);
 });

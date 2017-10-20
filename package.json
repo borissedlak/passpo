@@ -1,13 +1,13 @@
 {
-  "name": "twitter-notes",
-  "version": "1.0.0",
+  "name": "flag-api",
+  "version": "0.1.0",
   "description": "An application for leaving notes on Twitter friends and followers",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Saleh Hamadeh",
-  "license": "ISC",
+  "author": "Boris Sedlak",
+  "license": "Full copyright on the author",
   "dependencies": {
     "async": "^2.5.0",
     "body-parser": "^1.18.2",

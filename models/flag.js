@@ -9,7 +9,7 @@ var FlagSchema   = new mongoose.Schema({
             lat: Number,
             long: Number
         },
-        goal: {
+        destination: {
             lat: Number,
             long: Number
         },
