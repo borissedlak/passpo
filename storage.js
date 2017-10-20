@@ -31,14 +31,14 @@ module.exports = {
 	findOrCreateUser: function (profile, callback) {
 		var user = new User();
 		var query = User.findOne({ 'username': 'Boris Sedlak' },
-			function (err, results) {
+			function (err, result) {
 				if (err){
 					return callback(err, null);
 					console.log("Cannot insert friends to database: " + err);
 				}
 
 				if (result) {
-					return callback(err, user);
+					return callback(err, result);
 				}
 				else {
 					// Set the user properties that came from the POST data
