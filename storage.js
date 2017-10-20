@@ -30,7 +30,8 @@ module.exports = {
 	},
 	findOrCreateUser: function (profile, callback) {
 		var user = new User();
-		var query = User.findOne({ 'username': 'Boris Sedlak' },
+		console.log(profile);
+		var query = User.findOne({ 'facebookId': profile.id },
 			function (err, result) {
 				if (err){
 					console.log("Cannot insert friends to database: " + err);
