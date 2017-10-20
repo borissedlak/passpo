@@ -33,8 +33,8 @@ module.exports = {
 		var query = User.findOne({ 'username': 'Boris Sedlak' },
 			function (err, result) {
 				if (err){
-					return callback(err, null);
 					console.log("Cannot insert friends to database: " + err);
+					return callback(err, null);
 				}
 
 				if (result) {
