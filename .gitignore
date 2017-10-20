@@ -1,1 +1,8 @@
-/node_modules
+.idea/
+.tmp/
+.versions/
+node_modules/
+tmp/
+temp/
+
+npm-debug.log*
