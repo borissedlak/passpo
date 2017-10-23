@@ -2,7 +2,7 @@ var url = require('url');
 var express = require('express');
 var querystring = require('querystring');
 var async = require('async');
-var authenticator = require('./authenticator');
+//var authenticator = require('./authenticator');
 var mongoose = require('mongoose');
 var storage = require('./storage.js');
 var User = require('./models/user');
@@ -12,7 +12,7 @@ var authRouter = express.Router();
 var http = require('http');
 
 var passport = require('passport');
-var ensureLoggedIn = require('connect-ensure-login');
+var isLoggedIn = require('connect-ensure-login');
 var FacebookStrategy = require('passport-facebook').Strategy;
 var FacebookTokenStrategy = require('passport-facebook-token');
 var localStorage = require('localStorage');
@@ -29,17 +29,17 @@ app.use(require('cookie-parser')());
 
 //Do I need those?
 app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());
 //app.use(session({secret: 'supernova', saveUninitialized: true, resave: true}));
 //Morgan prints all HTTP Requests into the CLI - maybe use this for debug reasons
 //app.use(require('morgan')('combined'));
 app.use(require('body-parser').urlencoded({ extended: true }));
-app.use(passport.initialize());
-app.use(passport.session());
 
 passport.use(new FacebookStrategy({
-	clientID: 605136869876985,
-	clientSecret: 'ec15550f963b5415755158a4ed45503a',
-	callbackURL: "http://localhost:8080/auth/facebook/callback"
+	clientID: config.consumer_key,
+	clientSecret: config.consumer_secret,
+	callbackURL: config.callback_url
 },
 	function (accessToken, refreshToken, profile, callback) {
 		process.nextTick(function () {
@@ -60,6 +60,7 @@ passport.use(new FacebookStrategy({
 
 					if (user) {
 						console.log("Found user")
+						console.log(user);
 						return callback(null, user);
 					}
 					else {
@@ -84,17 +85,25 @@ passport.use(new FacebookStrategy({
 	}
 ));
 
-passport.serializeUser(function (user, cb) {
-	cb(null, user);
+passport.serializeUser(function (user, done) {
+	console.log("serialize");
+	done(null, user._id);
 });
 
-passport.deserializeUser(function (obj, cb) {
-	cb(null, obj);
-});
+passport.deserializeUser(function (id, done) {
+	console.log("deserialize");
+	User.findOne({_id: id}, function(err, user){
+		done(null, user);
+	});
+})
 
 app.get('/', function (req, res) {
-	res.render('login.ejs');
-
+	if(!req.user){
+		res.render('login.ejs');
+	}
+	else{
+		res.redirect('/profile')
+	}
 	/*if (req.user.err) {
 		res.status(401).json({
 			success: false,
@@ -123,8 +132,7 @@ app.get('/', function (req, res) {
 
 authRouter.get('/facebook', passport.authenticate('facebook'), function (req, res) { res.status(200) });
 
-app.get('/auth/facebook/callback',
-	passport.authenticate('facebook', {
+app.get('/auth/facebook/callback', passport.authenticate('facebook', {
 		successRedirect: '/profile',
 		failureRedirect: '/'
 	})
@@ -150,10 +158,14 @@ app.post('/', function (req, res) {
 });
 
 // route for showing the profile page
-app.get('/profile', isLoggedIn, function (req, res) {
-	res.render('profile.ejs', {
-		user: req.user // get the user out of session and pass to template
-	});
+app.get('/profile', function (req, res, next) {
+	if (req.user){
+		res.render('profile.ejs', {
+			user: req.user // get the user out of session and pass to template
+		});
+	}
+	else
+		res.redirect('/');
 });
 
 // Main page handler
@@ -190,11 +202,6 @@ app.get('/neverdothat', function (req, res) {
 	});
 });
 
-// Show the login page
-/*app.get('/login', function (req, res) {
-	res.render('login');
-});*/
-
 // Serve static files in public directory
 app.use(express.static(__dirname + '/public'));
 
@@ -206,7 +213,7 @@ app.listen(config.port, function () {
 });
 
 function isLoggedIn(req, res, next) {
-
+	
 	// if user is authenticated in the session, carry on
 	if (req.isAuthenticated())
 		return next();

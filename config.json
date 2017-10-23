@@ -1,11 +1,6 @@
 {
 	"port": "8080",
-	"request_token_url": "https://api.twitter.com/oauth/request_token",
-	"access_token_url": "https://api.twitter.com/oauth/access_token",
-	"authorize_url": "https://twitter.com/oauth/authorize",
-	"consumer_key": "ES10RZkCAIvy85li1fev6bE3I",
-	"consumer_secret": "qITTdbtm5FJVVT2HWj04yP3V8WS1079chM7pS8oKXQtoMVX7Z3",
-	"oauth_version": "1.0",
-	"oauth_signature": "HMAC-SHA1",
-	"oauth_callback": "/authenticated"
+	"consumer_key": 605136869876985,
+	"consumer_secret": "ec15550f963b5415755158a4ed45503a",
+	"callback_url": "/auth/facebook/callback" 
 }
