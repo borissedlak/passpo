@@ -9,10 +9,13 @@ var User = require('./models/user');
 var config = require('./config');
 var app = express();
 var authRouter = express.Router();
+var http = require('http');
 
 var passport = require('passport');
 var ensureLoggedIn = require('connect-ensure-login');
 var FacebookStrategy = require('passport-facebook').Strategy;
+var FacebookTokenStrategy = require('passport-facebook-token');
+var localStorage = require('localStorage');
 
 // Connect to MongoDB
 storage.connect();
@@ -26,29 +29,106 @@ app.use(require('cookie-parser')());
 
 //Do I need those?
 app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
+//app.use(session({secret: 'supernova', saveUninitialized: true, resave: true}));
 //Morgan prints all HTTP Requests into the CLI - maybe use this for debug reasons
 //app.use(require('morgan')('combined'));
 app.use(require('body-parser').urlencoded({ extended: true }));
-
-app.get('/', function (req, res) {
-	res.redirect('/login');
-});
-
-// Take user to Twitter's login page
-authRouter.get('/twitter', authenticator.redirectToTwitterLoginPage);
+app.use(passport.initialize());
+app.use(passport.session());
 
 passport.use(new FacebookStrategy({
 	clientID: 605136869876985,
 	clientSecret: 'ec15550f963b5415755158a4ed45503a',
 	callbackURL: "http://localhost:8080/auth/facebook/callback"
 },
-	function (accessToken, refreshToken, profile, cb) {
-		//console.log(profile);
-		storage.findOrCreateUser(profile, function (err, user) {
-			return cb(err, user);
+	function (accessToken, refreshToken, profile, callback) {
+		process.nextTick(function () {
+			User.findOne({ 'facebook.facebookId': profile.id },
+				function (err, user) {
+					/*http.get('graph.facebook.com/debug_token?input_token='+accessToken+'&access_token=app-token', function(resp){
+						resp.on('data', function(chunk){
+							console.log(JSON.parse(chunk));
+						});
+					}).on("error", function(e){
+						console.log("Got error: " + e.message);
+					});*/
+
+					if (err) {
+						console.log("Cannot insert user to database: " + err);
+						return callback(err);
+					}
+
+					if (user) {
+						console.log("Found user")
+						return callback(null, user);
+					}
+					else {
+						console.log("creating new user")
+						var newUser = new User();
+
+						// Set the user properties that came from the POST data
+						newUser.facebook.facebookId = profile.id;
+						newUser.facebook.username = profile.displayName;
+						newUser.facebook.access_token = accessToken;
+
+						// Save the user and check for errors
+						newUser.save(function (err) {
+							if (err)
+								throw err;
+							return callback(null, newUser);
+						});
+					}
+				}
+			);
 		});
 	}
 ));
+
+passport.serializeUser(function (user, cb) {
+	cb(null, user);
+});
+
+passport.deserializeUser(function (obj, cb) {
+	cb(null, obj);
+});
+
+app.get('/', function (req, res) {
+	res.render('login.ejs');
+
+	/*if (req.user.err) {
+		res.status(401).json({
+			success: false,
+			message: 'Auth failed',
+			error: req.user.err
+		})
+	}
+	else if (req.user) {
+		const user = { user_id: req.user.id }
+		const token = jwt.sign(user, '##########', {
+			expiresIn: "30d"
+		})
+		res.status(200).json({
+			success: true,
+			message: 'Enjoy your token!',
+			token: token,
+			user: req.user
+		})
+	} else {
+		res.status(401).json({
+			success: false,
+			message: 'Auth failed'
+		})
+	}*/
+});
+
+authRouter.get('/facebook', passport.authenticate('facebook'), function (req, res) { res.status(200) });
+
+app.get('/auth/facebook/callback',
+	passport.authenticate('facebook', {
+		successRedirect: '/profile',
+		failureRedirect: '/'
+	})
+);
 
 app.post('/', function (req, res) {
 	// Create a new instance of the Beer model
@@ -69,35 +149,12 @@ app.post('/', function (req, res) {
 
 });
 
-passport.serializeUser(function (user, cb) {
-	cb(null, user);
+// route for showing the profile page
+app.get('/profile', isLoggedIn, function (req, res) {
+	res.render('profile.ejs', {
+		user: req.user // get the user out of session and pass to template
+	});
 });
-
-passport.deserializeUser(function (obj, cb) {
-	cb(null, obj);
-});
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-authRouter.get('/facebook',
-	passport.authenticate('facebook')
-);
-
-authRouter.get('/facebook/callback',
-	passport.authenticate('facebook', { failureRedirect: '/login' }),
-	function (req, res) {
-		console.log("Successful authenticated");
-		res.redirect('/profile');
-	}
-);
-
-app.get('/profile',
-	ensureLoggedIn.ensureLoggedIn(),
-	function (req, res) {
-		res.render('profile', { user: req.user });
-	}
-);
 
 // Main page handler
 app.get('/neverdothat', function (req, res) {
@@ -134,9 +191,9 @@ app.get('/neverdothat', function (req, res) {
 });
 
 // Show the login page
-app.get('/login', function (req, res) {
+/*app.get('/login', function (req, res) {
 	res.render('login');
-});
+});*/
 
 // Serve static files in public directory
 app.use(express.static(__dirname + '/public'));
@@ -147,3 +204,13 @@ app.use('/auth', authRouter);
 app.listen(config.port, function () {
 	console.log("Listening on port " + config.port);
 });
+
+function isLoggedIn(req, res, next) {
+
+	// if user is authenticated in the session, carry on
+	if (req.isAuthenticated())
+		return next();
+
+	// if they aren't redirect them to the home page
+	res.redirect('/');
+}

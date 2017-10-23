@@ -1,6 +1,8 @@
-ID: <%= user.facebookId %>
+ID: <%= user.facebook.facebookId %>
 <br/>
-Name: <%= user.username %>
+Name: <%= user.facebook.username %>
+<br/>
+Token: <%= user.facebook.access_token %>
 <br/>
 <% if (user.registrationDate) { %>
     Registration Date: <%= user.registrationDate %>
