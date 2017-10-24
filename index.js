@@ -9,13 +9,15 @@ var User = require('./models/user');
 var config = require('./config');
 var app = express();
 var authRouter = express.Router();
-var http = require('http');
+var https = require('https');
 
 var passport = require('passport');
 var isLoggedIn = require('connect-ensure-login');
 var FacebookStrategy = require('passport-facebook').Strategy;
 var FacebookTokenStrategy = require('passport-facebook-token');
 var localStorage = require('localStorage');
+var global_access_token;
+var global_dev_token;
 
 // Connect to MongoDB
 storage.connect();
@@ -43,16 +45,9 @@ passport.use(new FacebookStrategy({
 },
 	function (accessToken, refreshToken, profile, callback) {
 		process.nextTick(function () {
+			//storage.validateFacebookToken(accessToken, dev_token);
 			User.findOne({ 'facebook.facebookId': profile.id },
 				function (err, user) {
-					/*http.get('graph.facebook.com/debug_token?input_token='+accessToken+'&access_token=app-token', function(resp){
-						resp.on('data', function(chunk){
-							console.log(JSON.parse(chunk));
-						});
-					}).on("error", function(e){
-						console.log("Got error: " + e.message);
-					});*/
-
 					if (err) {
 						console.log("Cannot insert user to database: " + err);
 						return callback(err);
@@ -60,7 +55,7 @@ passport.use(new FacebookStrategy({
 
 					if (user) {
 						console.log("Found user")
-						console.log(user);
+						//console.log(user);
 						return callback(null, user);
 					}
 					else {
@@ -86,18 +81,21 @@ passport.use(new FacebookStrategy({
 ));
 
 passport.serializeUser(function (user, done) {
-	console.log("serialize");
+	//console.log("serialize");
 	done(null, user._id);
 });
 
 passport.deserializeUser(function (id, done) {
-	console.log("deserialize");
+	//console.log("deserialize");
 	User.findOne({_id: id}, function(err, user){
 		done(null, user);
 	});
-})
+});
 
 app.get('/', function (req, res) {
+
+	console.log('home');
+
 	if(!req.user){
 		res.render('login.ejs');
 	}
@@ -158,14 +156,26 @@ app.post('/', function (req, res) {
 });
 
 // route for showing the profile page
-app.get('/profile', function (req, res, next) {
-	if (req.user){
-		res.render('profile.ejs', {
-			user: req.user // get the user out of session and pass to template
-		});
-	}
-	else
-		res.redirect('/');
+app.get('/profile', function (req, res) {
+	console.log('profile');
+	storage.isValidRequest(req, function(valid, msg){
+
+		console.log(valid);
+		console.log(msg);
+
+		if(valid && req.user){
+			//console.log(req.user);
+			res.render('profile.ejs', {
+				user: req.user // get the user out of session and pass to template
+			});
+		}
+		else{
+			//Redirect to error and display special message
+			console.log(msg);
+			res.redirect('/');
+		}
+	});
+
 });
 
 // Main page handler

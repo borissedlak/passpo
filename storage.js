@@ -1,7 +1,8 @@
 var mongoClient = require('mongodb').MongoClient;
 var mongoose = require('mongoose');
 var User = require('./models/user');
-var express
+var https = require('https');
+var config = require('./config');
 
 var database;
 var mLabConnectionString = 'mongodb://Basta55:HcAftPbye2@ds121575.mlab.com:21575/api';
@@ -16,14 +17,13 @@ module.exports = {
 	},
 	findOrCreateUser: function (profile, callback) {
 		var user = new User();
-		console.log(profile);
+		//console.log(profile);
 		var query = User.findOne({ 'facebookId': profile.id },
 			function (err, result) {
 				if (err){
 					console.log("Cannot insert friends to database: " + err);
 					return callback(err, null);
 				}
-
 				if (result) {
 					return callback(err, result);
 				}
@@ -41,5 +41,74 @@ module.exports = {
 				}
 			}
 		);
+	},
+	/**
+	 * Debugging the retreived facebook token to make sure that the request is authenticated
+	 * 
+	 * https://stackoverflow.com/questions/8605703/how-to-verify-facebook-access-token
+	 * https://developers.facebook.com/docs/facebook-login/access-tokens/debugging-and-error-handling
+	 */
+	isValidRequest: function(request, callback){
+
+		if(!request.user){
+			//console.log(request.user);
+			return callback(false,'User data missing');
+		}
+
+		var accessToken = request.user.facebook.access_token;
+		var devToken = request.session.dev_token;
+
+		// Check whether there exists an access token, or the access token has already expired
+		// The token is needed for the verification of the user's access token, so we definitly know that out app has created it.
+		if(!devToken || !devToken.data || devToken.data.expires_at > Date.now() || !devToken.data.is_valid){
+			console.log('Path 1');
+			https.get(
+				'https://graph.facebook.com/oauth/access_token?grant_type=client_credentials&client_id='+
+				config.consumer_key+'&client_secret='+config.consumer_secret
+			,function(resp){
+				resp.on('data', function(chunk){
+					devToken = JSON.parse(chunk).access_token;
+					request.session.dev_token = JSON.parse(chunk).access_token;
+
+					//console.log('https://graph.facebook.com/debug_token?input_token=123'+accessToken+'&access_token=123'+devToken);
+
+					// Verifies if the users accessToken was created by the facebook application, passed in the devToken
+					https.get('https://graph.facebook.com/debug_token?input_token='+accessToken+'&access_token='+devToken, function(resp){
+						resp.on('data', function(chunk){
+							//console.log(JSON.parse(chunk).data);
+							
+							//TODO: Need to rename the json parse variables, but there's a problem with stringifying and parsing them
+
+							//If we rename or recreate our facebook App, we need to change the name here
+							//Be careful, in the returned json object from facebook it does only contain .data on success, .error otherwise
+							if(JSON.parse(chunk).data && JSON.parse(chunk).data.is_valid && JSON.parse(chunk).data.application == 'Mobile')
+								return callback(true, JSON.parse(chunk).data);
+							else
+								return callback(false, JSON.parse(chunk));
+						});
+					}).on("error", function(e){
+						console.log("Got error: " + e.message);
+						return callback(false, e.message);
+					});
+
+				});
+			}).on("error", function(e){
+				console.log("Got error: " + e.message);
+				return callback(false, e.message);
+			});
+		}
+		else{
+			console.log('Path 2');
+			// Verifies if the users accessToken was created by the facebook application, passed in the devToken
+			https.get('https://graph.facebook.com/debug_token?input_token='+accessToken+'&access_token='+devToken, function(resp){
+				resp.on('data', function(chunk){
+					//console.log(JSON.parse(chunk));
+					return callback(true, JSON.parse(chunk).data);
+				});
+			}).on("error", function(e){
+				console.log("Got error: " + e.message);
+				return callback(false, e.message);
+			});
+		}
 	}
 }
