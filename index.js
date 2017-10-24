@@ -45,7 +45,6 @@ passport.use(new FacebookStrategy({
 },
 	function (accessToken, refreshToken, profile, callback) {
 		process.nextTick(function () {
-			//storage.validateFacebookToken(accessToken, dev_token);
 			User.findOne({ 'facebook.facebookId': profile.id },
 				function (err, user) {
 					if (err) {
@@ -55,7 +54,6 @@ passport.use(new FacebookStrategy({
 
 					if (user) {
 						console.log("Found user")
-						//console.log(user);
 						return callback(null, user);
 					}
 					else {
@@ -96,12 +94,20 @@ app.get('/', function (req, res) {
 
 	console.log('home');
 
-	if(!req.user){
+	if(req.param('facebook_id') !== ''){
+		res.redirect('/profile');
+	}
+	else{
+		res.status(401).send({ error: "param facebook_id missing" });
+	}
+
+	/*if(!req.user){
 		res.render('login.ejs');
 	}
 	else{
 		res.redirect('/profile')
-	}
+	}*/
+	
 	/*if (req.user.err) {
 		res.status(401).json({
 			success: false,
@@ -130,7 +136,7 @@ app.get('/', function (req, res) {
 
 authRouter.get('/facebook', passport.authenticate('facebook'), function (req, res) { res.status(200) });
 
-app.get('/auth/facebook/callback', passport.authenticate('facebook', {
+authRouter.get('/facebook/callback', passport.authenticate('facebook', {
 		successRedirect: '/profile',
 		failureRedirect: '/'
 	})
@@ -178,40 +184,6 @@ app.get('/profile', function (req, res) {
 
 });
 
-// Main page handler
-app.get('/neverdothat', function (req, res) {
-	if (!req.cookies.access_token || !req.cookies.access_token_secret || !req.cookies.twitter_id) {
-		return res.redirect('/login');
-	}
-
-	// If the app couldn't connect to the database, get data from Twitter's API
-	if (!storage.connected()) {
-		return renderMainPageFromTwitter(req, res);
-	}
-
-	storage.getFriends(req.cookies.twitter_id, function (err, friends) {
-		if (err) {
-			return res.status(500).send(err);
-		}
-
-		if (friends.length > 0) {
-			console.log("Data loaded from MongoDB");
-
-			// Sort the friends alphabetically by name
-			friends.sort(function (a, b) {
-				return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
-			});
-
-			// Render the main application
-			res.render('index', {
-				friends: friends
-			});
-		} else {
-			renderMainPageFromTwitter(req, res);
-		}
-	});
-});
-
 // Serve static files in public directory
 app.use(express.static(__dirname + '/public'));
 
@@ -221,13 +193,3 @@ app.use('/auth', authRouter);
 app.listen(config.port, function () {
 	console.log("Listening on port " + config.port);
 });
-
-function isLoggedIn(req, res, next) {
-	
-	// if user is authenticated in the session, carry on
-	if (req.isAuthenticated())
-		return next();
-
-	// if they aren't redirect them to the home page
-	res.redirect('/');
-}
