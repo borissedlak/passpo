@@ -50,13 +50,17 @@ module.exports = {
 	 */
 	isValidRequest: function(request, callback){
 
-		if(!request.user){
+		/*if(!request.user){
 			//console.log(request.user);
 			return callback(false,'User data missing');
-		}
+		}*/
 
-		var accessToken = request.user.facebook.access_token;
+		var accessToken = request.headers.authorization;
 		var devToken = request.session.dev_token;
+
+		// This may not be a good idea according to 
+		// https://stackoverflow.com/questions/39992774/verify-a-jwt-token-string-containing-bearer-with-nodejs
+		accessToken = accessToken.replace('Bearer ', '');
 
 		// Check whether there exists an access token, or the access token has already expired
 		// The token is needed for the verification of the user's access token, so we definitly know that out app has created it.
@@ -70,7 +74,7 @@ module.exports = {
 					devToken = JSON.parse(chunk).access_token;
 					request.session.dev_token = JSON.parse(chunk).access_token;
 
-					//console.log('https://graph.facebook.com/debug_token?input_token=123'+accessToken+'&access_token=123'+devToken);
+					console.log('https://graph.facebook.com/debug_token?input_token='+accessToken+'&access_token='+devToken);
 
 					// Verifies if the users accessToken was created by the facebook application, passed in the devToken
 					https.get('https://graph.facebook.com/debug_token?input_token='+accessToken+'&access_token='+devToken, function(resp){

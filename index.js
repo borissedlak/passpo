@@ -85,21 +85,102 @@ passport.serializeUser(function (user, done) {
 
 passport.deserializeUser(function (id, done) {
 	//console.log("deserialize");
-	User.findOne({_id: id}, function(err, user){
+	User.findOne({ _id: id }, function (err, user) {
 		done(null, user);
 	});
 });
 
 app.get('/', function (req, res) {
 
-	console.log('home');
+	if (req.query.facebook_id == null) {
+		return res.status(400).send({ error: "param facebook_id missing" });
+	}
+	
+	console.log(req.headers.authorization);
 
-	if(req.param('facebook_id') !== ''){
-		res.redirect('/profile');
-	}
-	else{
-		res.status(401).send({ error: "param facebook_id missing" });
-	}
+	storage.isValidRequest(req, function (valid, msg) {
+
+		console.log(valid);
+		console.log(msg);
+
+		if (valid && req.user) {
+			//console.log(req.user);
+			res.render('profile.ejs', {
+				user: req.user // get the user out of session and pass to template
+			});
+		}
+		else {
+			//Redirect to error and display special message
+			console.log(msg);
+			res.redirect('/?');
+		}
+	});
+
+	//Instead of comparing the type of the variable it is possible to just check whether it is null
+
+});
+
+// route for showing the profile page
+app.get('/profile', function (req, res) {
+	console.log('profile');
+	storage.isValidRequest(req, function (valid, msg) {
+
+		console.log(valid);
+		console.log(msg);
+
+		if (valid && req.user) {
+			//console.log(req.user);
+			res.render('profile.ejs', {
+				user: req.user // get the user out of session and pass to template
+			});
+		}
+		else {
+			//Redirect to error and display special message
+			console.log(msg);
+			res.redirect('/?');
+		}
+	});
+
+});
+
+authRouter.get('/facebook', passport.authenticate('facebook'), function (req, res) { res.status(200) });
+
+authRouter.get('/facebook/callback', passport.authenticate('facebook', {
+	successRedirect: '/profile',
+	failureRedirect: '/'
+})
+);
+
+app.post('/', function (req, res) {
+	// Create a new instance of the Beer model
+	var user = new User();
+
+	// Set the beer properties that came from the POST data
+	user.facebookId = 123;
+	user.username = 'AliBaba';
+
+	// Save the beer and check for errors
+	user.save(function (err) {
+		if (err) {
+			res.send(err);
+		}
+
+		res.json({ message: 'User added to the locker!', data: user });
+	});
+});
+
+// Serve static files in public directory
+app.use(express.static(__dirname + '/public'));
+
+app.use('/auth', authRouter);
+
+// Start listening for requests
+app.listen(config.port, function () {
+	console.log("Listening on port " + config.port);
+});
+
+
+
 
 	/*if(!req.user){
 		res.render('login.ejs');
@@ -107,7 +188,7 @@ app.get('/', function (req, res) {
 	else{
 		res.redirect('/profile')
 	}*/
-	
+
 	/*if (req.user.err) {
 		res.status(401).json({
 			success: false,
@@ -132,64 +213,3 @@ app.get('/', function (req, res) {
 			message: 'Auth failed'
 		})
 	}*/
-});
-
-authRouter.get('/facebook', passport.authenticate('facebook'), function (req, res) { res.status(200) });
-
-authRouter.get('/facebook/callback', passport.authenticate('facebook', {
-		successRedirect: '/profile',
-		failureRedirect: '/'
-	})
-);
-
-app.post('/', function (req, res) {
-	// Create a new instance of the Beer model
-	var user = new User();
-
-	// Set the beer properties that came from the POST data
-	user.facebookId = 123;
-	user.username = 'AliBaba';
-
-	// Save the beer and check for errors
-	user.save(function (err) {
-		if (err) {
-			res.send(err);
-		}
-
-		res.json({ message: 'User added to the locker!', data: user });
-	});
-
-});
-
-// route for showing the profile page
-app.get('/profile', function (req, res) {
-	console.log('profile');
-	storage.isValidRequest(req, function(valid, msg){
-
-		console.log(valid);
-		console.log(msg);
-
-		if(valid && req.user){
-			//console.log(req.user);
-			res.render('profile.ejs', {
-				user: req.user // get the user out of session and pass to template
-			});
-		}
-		else{
-			//Redirect to error and display special message
-			console.log(msg);
-			res.redirect('/');
-		}
-	});
-
-});
-
-// Serve static files in public directory
-app.use(express.static(__dirname + '/public'));
-
-app.use('/auth', authRouter);
-
-// Start listening for requests
-app.listen(config.port, function () {
-	console.log("Listening on port " + config.port);
-});
