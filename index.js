@@ -9,13 +9,13 @@ var User = require('./models/user');
 var config = require('./config');
 var app = express();
 var authRouter = express.Router();
+var v1Router = express.Router();
 var https = require('https');
 
 var passport = require('passport');
 var isLoggedIn = require('connect-ensure-login');
 var FacebookStrategy = require('passport-facebook').Strategy;
 var FacebookTokenStrategy = require('passport-facebook-token');
-var localStorage = require('localStorage');
 var global_access_token;
 var global_dev_token;
 
@@ -30,7 +30,7 @@ app.set('view engine', 'ejs');
 app.use(require('cookie-parser')());
 
 //Do I need those?
-app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
+app.use(require('express-session')({secret: 'my derest secret', resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 //app.use(session({secret: 'supernova', saveUninitialized: true, resave: true}));
@@ -92,27 +92,25 @@ passport.deserializeUser(function (id, done) {
 
 app.get('/', function (req, res) {
 
-	if (req.query.facebook_id == null) {
+	// IDEA: I get the Id from the debug_token function, so may I use it from there instead of the param
+	// --> Every request is handles as if the user is in the db
+
+	/*if (req.query.facebook_id == null) {
 		return res.status(400).send({ error: "param facebook_id missing" });
-	}
+	}*/
 	
-	console.log(req.headers.authorization);
+	//console.log(req.headers.authorization);
 
 	storage.isValidRequest(req, function (valid, msg) {
 
-		console.log(valid);
-		console.log(msg);
+		//console.log(valid);
+		//console.log(msg);
 
-		if (valid && req.user) {
-			//console.log(req.user);
-			res.render('profile.ejs', {
-				user: req.user // get the user out of session and pass to template
-			});
+		if (valid) {
+			return res.status(200).send({ data: msg });
 		}
 		else {
-			//Redirect to error and display special message
-			console.log(msg);
-			res.redirect('/?');
+			return res.status(401).send({ error: msg });
 		}
 	});
 
@@ -137,7 +135,7 @@ app.get('/profile', function (req, res) {
 		else {
 			//Redirect to error and display special message
 			console.log(msg);
-			res.redirect('/?');
+			res.redirect('/');
 		}
 	});
 
