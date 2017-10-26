@@ -1,5 +1,6 @@
 var url = require('url');
 var express = require('express');
+var bodyParser = require('body-parser');
 var querystring = require('querystring');
 var async = require('async');
 //var authenticator = require('./authenticator');
@@ -17,8 +18,6 @@ var passport = require('passport');
 var isLoggedIn = require('connect-ensure-login');
 var FacebookStrategy = require('passport-facebook').Strategy;
 var FacebookTokenStrategy = require('passport-facebook-token');
-var global_access_token;
-var global_dev_token;
 
 // Connect to MongoDB
 storage.connect();
@@ -37,7 +36,11 @@ app.use(passport.session());
 //app.use(session({secret: 'supernova', saveUninitialized: true, resave: true}));
 //Morgan prints all HTTP Requests into the CLI - maybe use this for debug reasons
 //app.use(require('morgan')('combined'));
-app.use(require('body-parser').urlencoded({ extended: true }));
+
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+//Without the correct setup body parser it is not possible to deserialize json bodies
+app.use(bodyParser.json());
 
 passport.use(new FacebookStrategy({
 	clientID: config.consumer_key,
@@ -111,20 +114,20 @@ app.get('/', function (req, res) {
 });
 
 app.post('/flag', function (req, res) {
-	// Create a new instance of the Beer model
-	var flag = new User();
-
-	// Set the beer properties that came from the POST data
-	user.facebookId = 123;
-	user.username = 'AliBaba';
-
-	// Save the beer and check for errors
-	user.save(function (err) {
+	if(!req.body.flag || req.body.flag == null){
+		return res.status(400).json({error: "Flag Body missing"});
+	}
+	var flagInputObject = req.body.flag;
+	var flag = new Flag();
+	flag.pos = flagInputObject.pos;
+	flag.owner = flagInputObject.owner;
+	
+	flag.save(function (err) {
 		if (err) {
-			res.send(err);
+			return res.send(err);
 		}
 
-		res.json({ message: 'User added to the locker!', data: user });
+		res.json({ message: 'Flag added to the db', data: flag });
 	});
 });
 
