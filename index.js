@@ -6,6 +6,7 @@ var async = require('async');
 var mongoose = require('mongoose');
 var storage = require('./storage.js');
 var User = require('./models/user');
+var Flag = require('./models/flag');
 var config = require('./config');
 var app = express();
 var authRouter = express.Router();
@@ -30,7 +31,7 @@ app.set('view engine', 'ejs');
 app.use(require('cookie-parser')());
 
 //Do I need those?
-app.use(require('express-session')({secret: 'my derest secret', resave: true, saveUninitialized: true }));
+app.use(require('express-session')({ secret: 'my derest secret', resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 //app.use(session({secret: 'supernova', saveUninitialized: true, resave: true}));
@@ -95,63 +96,23 @@ app.get('/', function (req, res) {
 	// IDEA: I get the Id from the debug_token function, so may I use it from there instead of the param
 	// --> Every request is handles as if the user is in the db
 
-	/*if (req.query.facebook_id == null) {
-		return res.status(400).send({ error: "param facebook_id missing" });
-	}*/
-	
-	//console.log(req.headers.authorization);
-
 	storage.isValidRequest(req, function (valid, msg) {
 
 		//console.log(valid);
 		//console.log(msg);
 
 		if (valid) {
-			return res.status(200).send({ data: msg });
+			return res.status(200).json({ data: msg });
 		}
 		else {
-			return res.status(401).send({ error: msg });
+			return res.status(401).json({ error: msg });
 		}
 	});
-
-	//Instead of comparing the type of the variable it is possible to just check whether it is null
-
 });
 
-// route for showing the profile page
-app.get('/profile', function (req, res) {
-	console.log('profile');
-	storage.isValidRequest(req, function (valid, msg) {
-
-		console.log(valid);
-		console.log(msg);
-
-		if (valid && req.user) {
-			//console.log(req.user);
-			res.render('profile.ejs', {
-				user: req.user // get the user out of session and pass to template
-			});
-		}
-		else {
-			//Redirect to error and display special message
-			console.log(msg);
-			res.redirect('/');
-		}
-	});
-
-});
-
-authRouter.get('/facebook', passport.authenticate('facebook'), function (req, res) { res.status(200) });
-
-authRouter.get('/facebook/callback', passport.authenticate('facebook', {
-	successRedirect: '/profile',
-	failureRedirect: '/'
-})
-);
-
-app.post('/', function (req, res) {
+app.post('/flag', function (req, res) {
 	// Create a new instance of the Beer model
-	var user = new User();
+	var flag = new User();
 
 	// Set the beer properties that came from the POST data
 	user.facebookId = 123;
@@ -167,6 +128,15 @@ app.post('/', function (req, res) {
 	});
 });
 
+authRouter.get('/facebook', passport.authenticate('facebook'), function (req, res) { res.status(200) });
+
+authRouter.get('/facebook/callback', passport.authenticate('facebook',
+	{
+		successRedirect: '/profile',
+		failureRedirect: '/'
+	}
+));
+
 // Serve static files in public directory
 app.use(express.static(__dirname + '/public'));
 
@@ -176,38 +146,3 @@ app.use('/auth', authRouter);
 app.listen(config.port, function () {
 	console.log("Listening on port " + config.port);
 });
-
-
-
-
-	/*if(!req.user){
-		res.render('login.ejs');
-	}
-	else{
-		res.redirect('/profile')
-	}*/
-
-	/*if (req.user.err) {
-		res.status(401).json({
-			success: false,
-			message: 'Auth failed',
-			error: req.user.err
-		})
-	}
-	else if (req.user) {
-		const user = { user_id: req.user.id }
-		const token = jwt.sign(user, '##########', {
-			expiresIn: "30d"
-		})
-		res.status(200).json({
-			success: true,
-			message: 'Enjoy your token!',
-			token: token,
-			user: req.user
-		})
-	} else {
-		res.status(401).json({
-			success: false,
-			message: 'Auth failed'
-		})
-	}*/

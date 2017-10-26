@@ -18,7 +18,7 @@ var FlagSchema   = new mongoose.Schema({
             long: Number
         }
     },
-    owner: [{ type: Schema.Types.ObjectId, ref: 'User' }]
+    owner: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
 
 // Export the Mongoose model

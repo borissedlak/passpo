@@ -60,6 +60,9 @@ module.exports = {
 
 		//console.log(!request.session.dev_token);
 
+		if(!accessToken || accessToken == null){
+			return callback(false, 'Access Token missing');
+		}
 		// This may not be a good idea according to below, but it is necessary
 		// https://stackoverflow.com/questions/39992774/verify-a-jwt-token-string-containing-bearer-with-nodejs
 		accessToken = accessToken.replace('Bearer ', '');
