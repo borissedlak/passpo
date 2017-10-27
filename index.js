@@ -113,22 +113,47 @@ app.get('/', function (req, res) {
 	});
 });
 
-app.post('/flag', function (req, res) {
-	if(!req.body.flag || req.body.flag == null){
-		return res.status(400).json({error: "Flag Body missing"});
-	}
-	var flagInputObject = req.body.flag;
-	var flag = new Flag();
-	flag.pos = flagInputObject.pos;
-	flag.owner = flagInputObject.owner;
-	
-	flag.save(function (err) {
-		if (err) {
-			return res.send(err);
+app.get('/flag', function (req, res) {
+	if(storage.isValidRequest(req, function(valid, msg){
+		if (valid) {
+			Flag.find(function (err,data){
+				if(err){
+					return res.status(500).json(error);
+				}
+				res.status(200).json(data);
+			});
 		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	}));
+});
 
-		res.json({ message: 'Flag added to the db', data: flag });
-	});
+app.post('/flag', function (req, res) {
+	if(storage.isValidRequest(req, function(valid, msg){
+		// #1 Make sure the post request contains a valid facebook token
+		if (valid) {
+			// #2 Make sure the POST contains a correct flag body
+			if(!req.body.flag || req.body.flag == null){
+				return res.status(400).json({error: "Flag Body missing"});
+			}
+			var flagInputObject = req.body.flag;
+			var flag = new Flag();
+			flag.pos = flagInputObject.pos;
+			flag.owner = flagInputObject.owner;
+			
+			flag.save(function (err) {
+				if (err) {
+					return res.status(500).send(err);
+				}
+		
+				res.status(201).json({ message: 'Flag added to the db', data: flag });
+			});
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	}));
 });
 
 authRouter.get('/facebook', passport.authenticate('facebook'), function (req, res) { res.status(200) });

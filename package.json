@@ -1,6 +1,6 @@
 {
   "name": "flag-api",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "An application for leaving notes on Twitter friends and followers",
   "main": "index.js",
   "scripts": {
