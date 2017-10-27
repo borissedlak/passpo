@@ -1,46 +1,47 @@
-var url = require('url');
+// ------------ BASIC INCLUDES ------------>>
+//var url = require('url');
 var express = require('express');
+var app = express();
 var bodyParser = require('body-parser');
-var querystring = require('querystring');
-var async = require('async');
-//var authenticator = require('./authenticator');
+//var querystring = require('querystring');
+//var async = require('async');
 var mongoose = require('mongoose');
+var https = require('https');
+var passport = require('passport');
+//var isLoggedIn = require('connect-ensure-login');
+var FacebookStrategy = require('passport-facebook').Strategy;
+// ----------------------------------------<<
+
+// --------- CUSTOM INCLUDES--------------->>
+var authenticator = require('./authenticator');
 var storage = require('./storage.js');
 var User = require('./models/user');
 var Flag = require('./models/flag');
 var config = require('./config');
-var app = express();
+// ----------------------------------------<<
+
+// ---------- ROUTING --------------------->>
 var authRouter = express.Router();
-var v1Router = express.Router();
-var https = require('https');
+//var v1Router = express.Router();
+// ----------------------------------------<<
 
-var passport = require('passport');
-var isLoggedIn = require('connect-ensure-login');
-var FacebookStrategy = require('passport-facebook').Strategy;
-var FacebookTokenStrategy = require('passport-facebook-token');
-
-// Connect to MongoDB
-storage.connect();
-mongoose = storage.connect();
-
-// Set the view engine to ejs
-app.set('view engine', 'ejs');
-
-// Add cookie parsing functionality to our Express app
+// ------ EXTENDED INCLUDES / SETUP ------->>
+//Allows JSON cookie parsing functionality
 app.use(require('cookie-parser')());
-
-//Do I need those?
+// One possible templating engine for js
+//app.set('view engine', 'ejs');
+storage.connect();
 app.use(require('express-session')({ secret: 'my derest secret', resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
-//app.use(session({secret: 'supernova', saveUninitialized: true, resave: true}));
 //Morgan prints all HTTP Requests into the CLI - maybe use this for debug reasons
 //app.use(require('morgan')('combined'));
-
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 //Without the correct setup body parser it is not possible to deserialize json bodies
 app.use(bodyParser.json());
+// ----------------------------------------<<
+
 
 passport.use(new FacebookStrategy({
 	clientID: config.consumer_key,
@@ -49,6 +50,7 @@ passport.use(new FacebookStrategy({
 },
 	function (accessToken, refreshToken, profile, callback) {
 		process.nextTick(function () {
+			// TODO: Use storage.findOrCreateUser Method instead
 			User.findOne({ 'facebook.facebookId': profile.id },
 				function (err, user) {
 					if (err) {
@@ -99,11 +101,7 @@ app.get('/', function (req, res) {
 	// IDEA: I get the Id from the debug_token function, so may I use it from there instead of the param
 	// --> Every request is handles as if the user is in the db
 
-	storage.isValidRequest(req, function (valid, msg) {
-
-		//console.log(valid);
-		//console.log(msg);
-
+	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
 			return res.status(200).json({ data: msg });
 		}
@@ -114,7 +112,7 @@ app.get('/', function (req, res) {
 });
 
 app.get('/flag', function (req, res) {
-	if(storage.isValidRequest(req, function(valid, msg){
+	authenticator.isValidRequest(req, function(valid, msg){
 		if (valid) {
 			Flag.find(function (err,data){
 				if(err){
@@ -126,11 +124,27 @@ app.get('/flag', function (req, res) {
 		else {
 			return res.status(401).json({ error: msg });
 		}
-	}));
+	});
+});
+
+app.get('/user', function (req, res) {
+	authenticator.isValidRequest(req, function(valid, msg){
+		if (valid) {
+			User.find(function (err,data){
+				if(err){
+					return res.status(500).json(error);
+				}
+				res.status(200).json(data);
+			});
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
 });
 
 app.post('/flag', function (req, res) {
-	if(storage.isValidRequest(req, function(valid, msg){
+	authenticator.isValidRequest(req, function(valid, msg){
 		// #1 Make sure the post request contains a valid facebook token
 		if (valid) {
 			// #2 Make sure the POST contains a correct flag body
@@ -153,7 +167,7 @@ app.post('/flag', function (req, res) {
 		else {
 			return res.status(401).json({ error: msg });
 		}
-	}));
+	});
 });
 
 authRouter.get('/facebook', passport.authenticate('facebook'), function (req, res) { res.status(200) });

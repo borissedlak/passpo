@@ -1,75 +1,91 @@
-var OAuth = require('oauth').OAuth;
+var https = require('https');
 var config = require('./config');
 
-// Create the oauth object for accessing Twitter
-var oauth = new OAuth(
-	config.request_token_url,
-	config.access_token_url,
-	config.consumer_key,
-	config.consumer_secret,
-	config.oauth_version,
-	config.oauth_callback,
-	config.oauth_signature
-);
-
 module.exports = {
-	get: function(url, access_token, access_token_secret, cb) {
-		oauth.get.call(oauth, url, access_token, access_token_secret, cb);
-	},
-	post: function(url, access_token, access_token_secret, body, cb) {
-		oauth.post.call(oauth, url, access_token, access_token_secret, body, cb);
-	},
-	redirectToTwitterLoginPage: function(req, res) {
-		oauth.getOAuthRequestToken(function(error, oauth_token, oauth_token_secret, results) {
-			if (error) {
-				console.log(error);
-				res.send("Authentication failed!");
-			} else {
-				res.cookie('oauth_token', oauth_token, { httpOnly: true });
-				res.cookie('oauth_token_secret', oauth_token_secret, { httpOnly: true });
-				res.redirect(config.authorize_url + '?oauth_token='+oauth_token);
-			}
-		});
-	},
-	authenticate: function(req, res, cb) {
-		if (!(req.cookies.oauth_token && req.cookies.oauth_token_secret && req.query.oauth_verifier)) {
-			return cb("Request does not have all required keys");
+	/**
+	 * Debugging the retreived facebook token to make sure that the request is authenticated
+	 * 
+	 * https://stackoverflow.com/questions/8605703/how-to-verify-facebook-access-token
+	 * https://developers.facebook.com/docs/facebook-login/access-tokens/debugging-and-error-handling
+	 */
+	isValidRequest: function (request, callback) {
+
+		/*if(!request.user){
+			//console.log(request.user);
+			return callback(false,'User data missing');
+		}*/
+
+		var accessToken = request.headers.authorization;
+		var devToken = request.session.dev_token;
+
+		//console.log(!request.session.dev_token);
+
+		if(!accessToken || accessToken == null){
+			return callback(false, 'Access Token missing');
+		}
+		// This may not be a good idea according to below, but it is necessary
+		// https://stackoverflow.com/questions/39992774/verify-a-jwt-token-string-containing-bearer-with-nodejs
+		accessToken = accessToken.replace('Bearer ', '');
+
+		// Check whether there exists an access token for the application in the session storage
+		// The token is needed for the verification of the user's access token, so we definitly know that it was created by our app.
+		if (!devToken || devToken == null) {
+			https.get(
+				'https://graph.facebook.com/oauth/access_token?grant_type=client_credentials&client_id=' +
+				config.consumer_key + '&client_secret=' + config.consumer_secret
+				, function (resp) {
+					resp.on('data', function (chunk) {
+						devToken = JSON.parse(chunk).access_token;
+						request.session.dev_token = JSON.parse(chunk).access_token;
+
+						//console.log('https://graph.facebook.com/debug_token?input_token='+accessToken+'&access_token='+devToken);
+
+						// Verifies if the users accessToken was created by the facebook application, passed in the devToken
+						https.get('https://graph.facebook.com/debug_token?input_token=' + accessToken + '&access_token=' + devToken, function (resp) {
+							resp.on('data', function (chunk) {
+								//console.log(JSON.parse(chunk).data);
+
+								//TODO: Need to rename the json parse variables, but there's a problem with stringifying and parsing them
+								// Also it is not a good idea to have the same code twice: here and below in the else
+
+								//If we rename or recreate our facebook App, we need to change the name here
+								//Be careful, in the returned json object from facebook it does only contain .data on success, .error otherwise
+								if (JSON.parse(chunk).data && JSON.parse(chunk).data.is_valid && JSON.parse(chunk).data.application == 'Mobile')
+									return callback(true, JSON.parse(chunk).data);
+								else
+									return callback(false, JSON.parse(chunk));
+							});
+						}).on("error", function (e) {
+							console.log("Got error: " + e.message);
+							return callback(false, e.message);
+						});
+
+					});
+				}).on("error", function (e) {
+					console.log("Got error: " + e.message);
+					return callback(false, e.message);
+				});
+		}
+		else {
+			
+			// Verifies if the users accessToken was created by the facebook application, passed in the devToken
+			https.get('https://graph.facebook.com/debug_token?input_token=' + accessToken + '&access_token=' + devToken, function (resp) {
+				resp.on('data', function (chunk) {
+					//console.log(JSON.parse(chunk).data);
+
+					//If we rename or recreate our facebook App, we need to change the name here
+					//Be careful, in the returned json object from facebook it does only contain .data on success, .error otherwise
+					if (JSON.parse(chunk).data && JSON.parse(chunk).data.is_valid && JSON.parse(chunk).data.application == 'Mobile')
+						return callback(true, JSON.parse(chunk).data);
+					else
+						return callback(false, JSON.parse(chunk));
+				});
+			}).on("error", function (e) {
+				console.log("Got error: " + e.message);
+				return callback(false, e.message);
+			});
 		}
 
-		// Clear the request token data from the cookies
-		res.clearCookie('oauth_token');
-		res.clearCookie('oauth_token_secret');
-
-		// Exchange oauth_verifier for an access token
-		oauth.getOAuthAccessToken(
-			req.cookies.oauth_token,
-			req.cookies.oauth_token_secret,
-			req.query.oauth_verifier,
-			function(error, oauth_access_token, oauth_access_token_secret, results) {
-				if (error) {
-					return cb(error);
-				}
-console.log("A");
-				// Get the user's Twitter ID
-				oauth.get('https://api.twitter.com/1.1/account/verify_credentials.json',
-					oauth_access_token, oauth_access_token_secret,
-					function(error, data) {
-						if (error) {
-							console.log(error);
-							return cb(error);
-						}
-
-						// Parse the JSON response
-						data = JSON.parse(data);
-
-						// Store the access token, access token secret, and user's Twitter ID in cookies
-						res.cookie('access_token', oauth_access_token, { httpOnly: true });
-						res.cookie('access_token_secret', oauth_access_token_secret, { httpOnly: true });
-						res.cookie('twitter_id', data.id_str, { httpOnly: true });
-
-						// Tell router that authentication was successful
-						cb();
-					});
-		});
+		//TIME: Path 1 takes around 500-1500ms, whereas Path 2 only takes < 200ms :)
 	}
-};
+}
