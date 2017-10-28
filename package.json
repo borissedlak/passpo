@@ -9,21 +9,16 @@
   "author": "Boris Sedlak",
   "license": "MIT",
   "dependencies": {
-    "async": "^2.5.0",
     "body-parser": "^1.18.2",
-    "connect-ensure-login": "^0.1.1",
     "cookie-parser": "^1.4.0",
     "ejs": "^2.3.4",
     "express": "^4.13.3",
     "express-session": "^1.15.6",
-    "http": "0.0.0",
-    "localStorage": "^1.0.3",
-    "mongodb": "^2.1.2",
+    "fs": "0.0.1-security",
     "mongoose": "^4.10.8",
     "morgan": "^1.9.0",
     "oauth": "^0.9.14",
     "passport": "^0.4.0",
-    "passport-facebook": "^2.1.1",
-    "passport-facebook-token": "^3.3.0"
+    "passport-facebook": "^2.1.1"
   }
 }

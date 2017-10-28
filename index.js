@@ -5,6 +5,7 @@ var app = express();
 var bodyParser = require('body-parser');
 //var querystring = require('querystring');
 //var async = require('async');
+var fs = require('fs');
 var mongoose = require('mongoose');
 var https = require('https');
 var passport = require('passport');
@@ -23,6 +24,17 @@ var config = require('./config');
 // ---------- ROUTING --------------------->>
 var authRouter = express.Router();
 //var v1Router = express.Router();
+
+//HTTPS forcing
+/*var httpsOptions = {
+	key: fs.readFileSync('./ssl-key.pem'),
+	cert: fs.readFileSync('./ssl-cert.pem')
+};
+var https = express(httpsOptions);
+https.all('*', function(req, res) {
+	console.log("HTTPS: " + req.url);
+	return res.send(400).json({error:"HTTP is not supported, use HTTPS instead"});
+});*/
 // ----------------------------------------<<
 
 // ------ EXTENDED INCLUDES / SETUP ------->>
@@ -41,7 +53,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 //Without the correct setup body parser it is not possible to deserialize json bodies
 app.use(bodyParser.json());
 // ----------------------------------------<<
-
 
 passport.use(new FacebookStrategy({
 	clientID: config.consumer_key,
