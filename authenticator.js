@@ -50,7 +50,7 @@ module.exports = {
 
 								//If we rename or recreate our facebook App, we need to change the name here
 								//Be careful, in the returned json object from facebook it does only contain .data on success, .error otherwise
-								if (JSON.parse(chunk).data && JSON.parse(chunk).data.is_valid && JSON.parse(chunk).data.application == 'Mobile')
+								if (JSON.parse(chunk).data && JSON.parse(chunk).data.is_valid && JSON.parse(chunk).data.application == config.application_name)
 									return callback(true, JSON.parse(chunk).data);
 								else
 									return callback(false, JSON.parse(chunk));

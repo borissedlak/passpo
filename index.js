@@ -2,6 +2,9 @@
 //var url = require('url');
 var express = require('express');
 var app = express();
+//CORS is about whether the express server allows requests from different servers.
+//https://stackoverflow.com/questions/7067966/how-to-allow-cors
+var cors = require('cors');
 var bodyParser = require('body-parser');
 //var querystring = require('querystring');
 //var async = require('async');
@@ -40,6 +43,7 @@ https.all('*', function(req, res) {
 // ------ EXTENDED INCLUDES / SETUP ------->>
 //Allows JSON cookie parsing functionality
 app.use(require('cookie-parser')());
+app.use(cors());
 // One possible templating engine for js
 //app.set('view engine', 'ejs');
 storage.connect();
@@ -149,6 +153,19 @@ app.get('/user', function (req, res) {
 			});
 		}
 		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});
+
+app.post('/points', function (req, res) {
+	authenticator.isValidRequest(req, function(valid, msg){
+		if (valid) {
+			//console.log("Valid", req.headers.authorization, msg);
+			return res.status(200).json({message: 'Valid request'});
+		}
+		else {
+			//console.log("Invalid", req.headers.authorization, msg);
 			return res.status(401).json({ error: msg });
 		}
 	});

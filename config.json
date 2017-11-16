@@ -1,6 +1,7 @@
 {
 	"port": "8080",
-	"consumer_key": 605136869876985,
-	"consumer_secret": "ec15550f963b5415755158a4ed45503a",
+	"application_name": "Flagture",
+	"consumer_key": 328825967593367,
+	"consumer_secret": "56b902ade32adbff835492d83eed3b3c",
 	"callback_url": "/auth/facebook/callback" 
 }
