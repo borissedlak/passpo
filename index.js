@@ -79,7 +79,7 @@ passport.use(new FacebookStrategy({
 
 						// Set the user properties that came from the POST data
 						newUser.facebook.facebookId = profile.id;
-						newUser.facebook.username = profile.displayName;
+						newUser.facebook.profileName = profile.displayName;
 						newUser.facebook.access_token = accessToken;
 
 						// Save the user and check for errors

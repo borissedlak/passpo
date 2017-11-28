@@ -1,16 +1,18 @@
 // Load required packages
 var mongoose = require('mongoose');
-//var findOrCreate = require('mongoose-findorcreate');
 
 
-// Define our beer schema
+// Define our user schema
 var UserSchema = new mongoose.Schema({
+    userName: String,
+    password: String,
+    email: String,
+    registrationDate: { type: Date, default: Date.now },
     facebook: {
         facebookId: Number,
-        username: String,
+        profileName: String,
         access_token: String
-    },
-    registrationDate: { type: Date, default: Date.now }
+    }
 });
 
 //UserSchema.plugin(findOrCreate);
