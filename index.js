@@ -14,6 +14,7 @@ var https = require('https');
 var passport = require('passport');
 // ----------------------------------------<<
 
+
 // --------- CUSTOM INCLUDES--------------->>
 var authenticator = require('./authenticator');
 var storage = require('./storage.js');
@@ -25,20 +26,6 @@ var config = require('./config/config.json');
 require('./config/passport')(passport); // pass passport for configuration
 // ----------------------------------------<<
 
-// ---------- ROUTING --------------------->>
-var authRouter = express.Router();
-
-//HTTPS forcing
-/*var httpsOptions = {
-	key: fs.readFileSync('./ssl-key.pem'),
-	cert: fs.readFileSync('./ssl-cert.pem')
-};
-var https = express(httpsOptions);
-https.all('*', function(req, res) {
-	console.log("HTTPS: " + req.url);
-	return res.send(400).json({error:"HTTP is not supported, use HTTPS instead"});
-});*/
-// ----------------------------------------<<
 
 // ------ EXTENDED INCLUDES / SETUP ------->>
 //Allows JSON cookie parsing functionality
@@ -55,6 +42,25 @@ app.use(passport.session());
 app.use(bodyParser.urlencoded({ extended: false }));
 //Without the correct setup body parser it is not possible to deserialize json bodies
 app.use(bodyParser.json());
+// ----------------------------------------<<
+
+
+// ---------- ROUTING --------------------->>
+var authRouter = express.Router();
+require('./routing/auth_routes')(authRouter, passport);
+//Must be below the complete passport setup for some reason
+app.use('/auth', authRouter);
+
+//HTTPS forcing
+/*var httpsOptions = {
+	key: fs.readFileSync('./ssl-key.pem'),
+	cert: fs.readFileSync('./ssl-cert.pem')
+};
+var https = express(httpsOptions);
+https.all('*', function(req, res) {
+	console.log("HTTPS: " + req.url);
+	return res.send(400).json({error:"HTTP is not supported, use HTTPS instead"});
+});*/
 // ----------------------------------------<<
 
 
@@ -145,41 +151,8 @@ app.post('/flag', function (req, res) {
 	});
 });
 
-//LOGIN
-//successful: redirect to main page, respond with status code 200
-//unsuccessful: stay on login site, display error message, respond with status code 401
-authRouter.post('/login', function(req, res){
-	passport.authenticate('local-login', function (err, user, info) {
-		//console.log(err,user,info);
-		res.status(info.status).json({user:user, info:info});
-	//Notice that when you pass parameters to a deeper function you have to include the reference at the end as below
-	})(req, res);
-});
-
-//REGISTRATION
-//successful: redirect to login page, respond with status code 200
-//unsuccessful: stay on registration site, display error message, respond with status code 400|401
-authRouter.post('/signup', function(req, res){
-	passport.authenticate('local-signup', function (err, user, info) {
-		//console.log(err,user,info);
-		res.status(info.status).json({user:user, info:info});
-	//Notice that when you pass parameters to a deeper function you have to include the reference at the end as below
-	})(req, res);
-});
-
-authRouter.get('/facebook', passport.authenticate('facebook'), function (req, res) { res.status(200) });
-
-authRouter.get('/facebook/callback', passport.authenticate('facebook',
-	{
-		successRedirect: '/profile',
-		failureRedirect: '/'
-	}
-));
-
 // Serve static files in public directory
 app.use(express.static(__dirname + '/public'));
-
-app.use('/auth', authRouter);
 
 // Start listening for requests
 app.listen(config.port, function () {
