@@ -16,14 +16,14 @@ var passport = require('passport');
 
 
 // --------- CUSTOM INCLUDES--------------->>
-var authenticator = require('./config/authenticator');
-var storage = require('./config/storage');
+var authenticator = require('./modules/authenticator');
+var storage = require('./modules/storage');
 var User = require('./models/user');
 var Flag = require('./models/flag');
 var Item = require('./models/item');
 var UserItem = require('./models/userItem');
 var config = require('./config/config.json');
-require('./config/passport')(passport); // pass passport for configuration
+require('./modules/passport')(passport); // pass passport for configuration
 // ----------------------------------------<<
 
 

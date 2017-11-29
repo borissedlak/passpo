@@ -1,5 +1,5 @@
 var https = require('https');
-var config = require('./config');
+var config = require('../config/config');
 
 module.exports = {
 	/**
