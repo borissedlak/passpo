@@ -12,8 +12,6 @@ var fs = require('fs');
 var mongoose = require('mongoose');
 var https = require('https');
 var passport = require('passport');
-//var isLoggedIn = require('connect-ensure-login');
-var FacebookStrategy = require('passport-facebook').Strategy;
 // ----------------------------------------<<
 
 // --------- CUSTOM INCLUDES--------------->>
@@ -21,12 +19,14 @@ var authenticator = require('./authenticator');
 var storage = require('./storage.js');
 var User = require('./models/user');
 var Flag = require('./models/flag');
-var config = require('./config');
+var Item = require('./models/item');
+var UserItem = require('./models/userItem');
+var config = require('./config/config.json');
+require('./config/passport')(passport); // pass passport for configuration
 // ----------------------------------------<<
 
 // ---------- ROUTING --------------------->>
 var authRouter = express.Router();
-//var v1Router = express.Router();
 
 //HTTPS forcing
 /*var httpsOptions = {
@@ -58,58 +58,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 // ----------------------------------------<<
 
-passport.use(new FacebookStrategy({
-	clientID: config.consumer_key,
-	clientSecret: config.consumer_secret,
-	callbackURL: config.callback_url
-},
-	function (accessToken, refreshToken, profile, callback) {
-		process.nextTick(function () {
-			// TODO: Use storage.findOrCreateUser Method instead
-			User.findOne({ 'facebook.facebookId': profile.id },
-				function (err, user) {
-					if (err) {
-						console.log("Cannot insert user to database: " + err);
-						return callback(err);
-					}
-
-					if (user) {
-						console.log("Found user")
-						return callback(null, user);
-					}
-					else {
-						console.log("creating new user")
-						var newUser = new User();
-
-						// Set the user properties that came from the POST data
-						newUser.facebook.facebookId = profile.id;
-						newUser.facebook.profileName = profile.displayName;
-						newUser.facebook.access_token = accessToken;
-
-						// Save the user and check for errors
-						newUser.save(function (err) {
-							if (err)
-								throw err;
-							return callback(null, newUser);
-						});
-					}
-				}
-			);
-		});
-	}
-));
-
-passport.serializeUser(function (user, done) {
-	//console.log("serialize");
-	done(null, user._id);
-});
-
-passport.deserializeUser(function (id, done) {
-	//console.log("deserialize");
-	User.findOne({ _id: id }, function (err, user) {
-		done(null, user);
-	});
-});
 
 app.get('/', function (req, res) {
 
@@ -197,6 +145,20 @@ app.post('/flag', function (req, res) {
 		}
 	});
 });
+
+//LOGIN
+//successful: redirect to main page, respond with status code 200
+//unsuccessful: stay on login site, display error message, respond with status code 401
+authRouter.post('/login', passport.authenticate('local-login', function (err, user, info) {
+	res.status(info.status).json({user:user, info:info});
+}));
+
+//REGISTRATION
+//successful: redirect to login page, respond with status code 200
+//unsuccessful: stay on registration site, display error message, respond with status code 400|401
+authRouter.post('/signup', passport.authenticate('local-signup', function (err, user, info) {
+	res.status(info.status).json({user:user, info:info});
+}));
 
 authRouter.get('/facebook', passport.authenticate('facebook'), function (req, res) { res.status(200) });
 

@@ -7,7 +7,7 @@ var Item = require('./item');
 var UserItemSchema   = new mongoose.Schema({
     item: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }],
     user: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    amount: int
+    amount: Number
 });
 
 // Export the Mongoose model
