@@ -44,15 +44,14 @@ https.all('*', function(req, res) {
 //Allows JSON cookie parsing functionality
 app.use(require('cookie-parser')());
 app.use(cors());
-// One possible templating engine for js
-//app.set('view engine', 'ejs');
 storage.connect();
+//mongoose.connect(configDB.url); // connect to our database
 app.use(require('express-session')({ secret: 'my derest secret', resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 //Morgan prints all HTTP Requests into the CLI - maybe use this for debug reasons
 //app.use(require('morgan')('combined'));
-// parse application/x-www-form-urlencoded
+//parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 //Without the correct setup body parser it is not possible to deserialize json bodies
 app.use(bodyParser.json());
@@ -149,16 +148,24 @@ app.post('/flag', function (req, res) {
 //LOGIN
 //successful: redirect to main page, respond with status code 200
 //unsuccessful: stay on login site, display error message, respond with status code 401
-authRouter.post('/login', passport.authenticate('local-login', function (err, user, info) {
-	res.status(info.status).json({user:user, info:info});
-}));
+authRouter.post('/login', function(req, res){
+	passport.authenticate('local-login', function (err, user, info) {
+		//console.log(err,user,info);
+		res.status(info.status).json({user:user, info:info});
+	//Notice that when you pass parameters to a deeper function you have to include the reference at the end as below
+	})(req, res);
+});
 
 //REGISTRATION
 //successful: redirect to login page, respond with status code 200
 //unsuccessful: stay on registration site, display error message, respond with status code 400|401
-authRouter.post('/signup', passport.authenticate('local-signup', function (err, user, info) {
-	res.status(info.status).json({user:user, info:info});
-}));
+authRouter.post('/signup', function(req, res){
+	passport.authenticate('local-signup', function (err, user, info) {
+		//console.log(err,user,info);
+		res.status(info.status).json({user:user, info:info});
+	//Notice that when you pass parameters to a deeper function you have to include the reference at the end as below
+	})(req, res);
+});
 
 authRouter.get('/facebook', passport.authenticate('facebook'), function (req, res) { res.status(200) });
 

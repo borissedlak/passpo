@@ -1,12 +1,12 @@
 // Load required packages
 var mongoose = require('mongoose');
-
+var bcrypt = require('bcrypt');
 
 // Define our user schema
 var UserSchema = new mongoose.Schema({
     local:{
-        password: String,
         email: String,
+        password: String,
     },
     facebook: {
         facebookId: Number,
