@@ -1,4 +1,4 @@
-var User = require('./models/user');
+var User = require('../models/user');
 var mongoose = require('mongoose');
 
 var mLabConnectionString = 'mongodb://Basta55:HcAftPbye2@ds121575.mlab.com:21575/api';

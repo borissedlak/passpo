@@ -16,8 +16,8 @@ var passport = require('passport');
 
 
 // --------- CUSTOM INCLUDES--------------->>
-var authenticator = require('./authenticator');
-var storage = require('./storage.js');
+var authenticator = require('./config/authenticator');
+var storage = require('./config/storage');
 var User = require('./models/user');
 var Flag = require('./models/flag');
 var Item = require('./models/item');
