@@ -111,9 +111,13 @@ module.exports = {
 				break;
 
 			case 'local':
-				console.log(accessToken);
 				var decoded = jwt.decode(accessToken, config.jwt_secret);
-				console.log(decoded);
+				if(decoded.id == user._id){
+					return callback(true, "Decoded ID matches with user");
+				}
+				else{
+					return callback(false, "Decoded ID represents other user");
+				}
 				break;
 
 			default:
