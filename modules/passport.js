@@ -4,17 +4,6 @@ var config = require('../config/config.json')
 var User = require('../models/user');
 
 module.exports = function (passport) {
-	passport.serializeUser(function (user, done) {
-		//console.log("serialize");
-		done(null, user._id);
-	});
-
-	passport.deserializeUser(function (id, done) {
-		//console.log("deserialize");
-		User.findOne({ _id: id }, function (err, user) {
-			done(null, user);
-		});
-	});
 
 	passport.use(new FacebookStrategy({
 		clientID: config.consumer_key,
@@ -25,17 +14,11 @@ module.exports = function (passport) {
 			process.nextTick(function () {
 				User.findOne({ 'facebook.facebookId': profile.id },
 					function (err, user) {
-						if (err) {
-							console.log("Cannot insert user to database: " + err);
+						if (err) 
 							return callback(err, null, { status: 401, message: 'Email already registered' });
-						}
-
-						if (user) {
-							console.log("Found user")
+						if (user)
 							return callback(null, user, { status: 200, message: 'User found' });
-						}
 						else {
-							console.log("creating new user")
 							var newUser = new User();
 
 							// Set the user properties that came from the POST data
@@ -141,4 +124,16 @@ module.exports = function (passport) {
 			});
 
 		}));
+
+	passport.serializeUser(function (user, done) {
+		//console.log("serialize");
+		done(null, user._id);
+	});
+
+	passport.deserializeUser(function (id, done) {
+		//console.log("deserialize");
+		User.findOne({ _id: id }, function (err, user) {
+			done(null, user);
+		});
+	});
 };

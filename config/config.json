@@ -3,5 +3,6 @@
 	"application_name": "Flagture",
 	"consumer_key": 328825967593367,
 	"consumer_secret": "56b902ade32adbff835492d83eed3b3c",
-	"callback_url": "/auth/facebook/callback" 
+	"callback_url": "/auth/facebook/callback" ,
+	"jwt_secret": "tasmanianDevil"
 }
