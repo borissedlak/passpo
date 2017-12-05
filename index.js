@@ -80,10 +80,10 @@ app.get('/', function (req, res) {
 });
 
 app.get('/flag', function (req, res) {
-	authenticator.isValidRequest(req, function(valid, msg){
+	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
-			Flag.find(function (err,data){
-				if(err){
+			Flag.find(function (err, data) {
+				if (err) {
 					return res.status(500).json(error);
 				}
 				res.status(200).json(data);
@@ -96,10 +96,10 @@ app.get('/flag', function (req, res) {
 });
 
 app.get('/user', function (req, res) {
-	authenticator.isValidRequest(req, function(valid, msg){
+	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
-			User.find(function (err,data){
-				if(err){
+			User.find(function (err, data) {
+				if (err) {
 					return res.status(500).json(error);
 				}
 				res.status(200).json(data);
@@ -112,10 +112,10 @@ app.get('/user', function (req, res) {
 });
 
 app.post('/points', function (req, res) {
-	authenticator.isValidRequest(req, function(valid, msg){
+	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
 			//console.log("Valid", req.headers.authorization, msg);
-			return res.status(200).json({message: 'Valid request'});
+			return res.status(200).json({ message: 'Valid request' });
 		}
 		else {
 			//console.log("Invalid", req.headers.authorization, msg);
@@ -125,23 +125,23 @@ app.post('/points', function (req, res) {
 });
 
 app.post('/flag', function (req, res) {
-	authenticator.isValidRequest(req, function(valid, msg){
+	authenticator.isValidRequest(req, function (valid, msg) {
 		// #1 Make sure the post request contains a valid facebook token
 		if (valid) {
 			// #2 Make sure the POST contains a correct flag body
-			if(!req.body.flag || req.body.flag == null){
-				return res.status(400).json({error: "Flag Body missing"});
+			if (!req.body.flag || req.body.flag == null) {
+				return res.status(400).json({ error: "Flag Body missing" });
 			}
 			var flagInputObject = req.body.flag;
 			var flag = new Flag();
 			flag.pos = flagInputObject.pos;
 			flag.owner = flagInputObject.owner;
-			
+
 			flag.save(function (err) {
 				if (err) {
 					return res.status(500).send(err);
 				}
-		
+
 				res.status(201).json({ message: 'Flag added to the db', data: flag });
 			});
 		}
@@ -157,4 +157,43 @@ app.use(express.static(__dirname + '/public'));
 // Start listening for requests
 app.listen(config.port, function () {
 	console.log("Listening on port " + config.port);
+});
+
+
+//POST colleced Item to server
+app.post('/itemPickup', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		// #1 Make sure the post request contains a valid facebook token
+		if (valid) {
+			// #2 Make sure the POST contains a correct flag body
+			if (!req.body.userItem || req.body.userItem == null) {
+				return res.status(400).json({ error: "userItem Body missing" });
+			}
+
+			var itemInputObject = req.body.userItem;
+			var userItem = new UserItem();
+			switch (itemInputObject.type) {
+				case "1": //Magic Hood
+					userItem.item = "5a26757b2c598716c06e90e4";
+					break;
+				case "2": //Mystic Compass
+					userItem.item = "5a26778e2c598716c06e90e5";
+					break;
+			}
+
+			userItem.user = req.user._id;
+			userItem.amount = 1;	//TODO when data is already here +1
+
+			userItem.save(function (err) {
+				if (err) {
+					return res.status(500).send(err);
+				}
+
+				res.status(201).json({ message: 'Item added to the db', data: userItem });
+			});
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
 });
