@@ -15,7 +15,7 @@ var UserSchema = new mongoose.Schema({
         email: String
     },
     global:{
-        userName: String,
+        username: String,
         registrationDate: { type: Date, default: Date.now }
     }
 });
