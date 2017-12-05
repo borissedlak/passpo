@@ -17,8 +17,9 @@ module.exports = {
 			return callback(false,'User data missing');
 		}*/
 
-		var strategy = request.headers.authorization_type;
-		var accessToken = request.headers.authorization;
+		var authentication = JSON.parse(request.headers.authorization);
+		var strategy = authentication.strategy;
+		var accessToken = authentication.token;
 		var devToken = request.session.dev_token;
 		var user = request.user;
 
@@ -44,7 +45,6 @@ module.exports = {
 				}
 				//Token does not represent the one in the db, we have to validate it again.
 				else {
-
 					// Check whether there exists an access token for the application in the session storage
 					// The token is needed for the verification of the user's access token, so we definitly know that it was created by our app.
 					if (!devToken || devToken == null) {
