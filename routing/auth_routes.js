@@ -17,7 +17,7 @@ module.exports = function (authRouter, passport) {
                     else{
                         var payload = {id: req.user._id};
                         var token = jwt.encode(payload, config.jwt_secret);
-                        return res.status(info.status).json({ user: req.user, info: info, token: token });
+                        return res.status(info.status).json({ user: user, info: info, token: token });
                     }
                 });
             }
@@ -36,9 +36,9 @@ module.exports = function (authRouter, passport) {
                 req.login(user, function (err) {
                     if (err) { return res.status(500).json({ err: err }); }
                     else{
-                        var payload = {id: req.user._id};
+                        var payload = { id: req.user._id };
                         var token = jwt.encode(payload, config.jwt_secret);
-                        return res.status(info.status).json({ user: req.user, info: info, token: token });
+                        return res.status(info.status).json({ user: user, info: info, token: token });
                     }
                 });
             }
