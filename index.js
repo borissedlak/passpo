@@ -171,25 +171,46 @@ app.post('/itemPickup', function (req, res) {
 			}
 
 			var itemInputObject = req.body.userItem;
-			var userItem = new UserItem();
-			switch (itemInputObject.type) {
+			var itemType = null;
+
+			switch (itemInputObject.type) { //Itemtype switch
 				case "1": //Magic Hood
-					userItem.item = "5a26757b2c598716c06e90e4";
+					itemType = "5a26757b2c598716c06e90e4";
 					break;
 				case "2": //Mystic Compass
-					userItem.item = "5a26778e2c598716c06e90e5";
+					itemType = "5a26778e2c598716c06e90e5";
 					break;
 			}
 
-			userItem.user = req.user._id;
-			userItem.amount = 1;	//TODO when data is already here +1
-
-			userItem.save(function (err) {
+			UserItem.findOne({ "user": req.user._id, "item": itemType }, function (err, result) {
 				if (err) {
 					return res.status(500).send(err);
 				}
+				if (result) {
+					//existing entries amount plus one
+					UserItem.update({ "user": req.user._id, "item": itemType }, { $inc: { "amount": 1 } }, function (err, result) {
+						if (err) {
+							return res.status(500).send(err);
+						}
+						res.status(201).json({ message: 'Item updated in db' });
+					});
+				} else {
+					//no existing entry and creating new UserItem entry
+					var userItem = new UserItem();
 
-				res.status(201).json({ message: 'Item added to the db', data: userItem });
+					//set userItem attributes
+					userItem.item = itemType;
+					userItem.user = req.user._id;
+					userItem.amount = 1;
+
+					userItem.save(function (err) {
+						if (err) {
+							return res.status(500).send(err);
+						}
+
+						res.status(201).json({ message: 'Item added to the db', data: userItem });
+					});
+				}
 			});
 		}
 		else {
