@@ -14,7 +14,7 @@ module.exports = function (passport) {
 			process.nextTick(function () {
 				User.findOne({ 'facebook.facebookId': profile.id },
 					function (err, user) {
-						if (err) 
+						if (err)
 							return callback(err, null, { status: 401, message: 'Email already registered' });
 						if (user)
 							return callback(null, user, { status: 200, message: 'User found' });
@@ -63,7 +63,7 @@ module.exports = function (passport) {
 					// check to see if theres already a user with that username
 					if (user) {
 						return done(null, null, { status: 401, message: 'Username already registered' });
-					} 
+					}
 					else {
 						// create the user
 						var newUser = new User();

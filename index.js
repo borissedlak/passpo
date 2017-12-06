@@ -182,6 +182,7 @@ app.post('/itemPickup', function (req, res) {
 					break;
 			}
 
+			//Possible optimization reduce by using findoneandupdate
 			UserItem.findOne({ "user": req.user._id, "item": itemType }, function (err, result) {
 				if (err) {
 					return res.status(500).send(err);

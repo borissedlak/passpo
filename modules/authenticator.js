@@ -16,10 +16,20 @@ module.exports = {
 			//console.log(request.user);
 			return callback(false,'User data missing');
 		}*/
+		
+		console.log(request.headers.authorization);
 
-		var authentication = JSON.parse(request.headers.authorization);
-		var strategy = authentication.strategy;
-		var accessToken = authentication.token;
+		var postman = request.headers.postman;
+		if(postman == "true"){
+			var strategy = request.headers.strategy;
+			var accessToken = request.headers.authorization;
+		}
+		else{
+			var authentication = JSON.parse(request.headers.authorization);
+			var strategy = authentication.strategy;
+			var accessToken = authentication.token;
+		}
+		
 		var devToken = request.session.dev_token;
 		var user = request.user;
 
@@ -111,6 +121,7 @@ module.exports = {
 				break;
 
 			case 'local':
+				//TODO: catch error if not decodeable
 				var decoded = jwt.decode(accessToken, config.jwt_secret);
 				if(decoded.id == user._id){
 					return callback(true, "Decoded ID matches with user");

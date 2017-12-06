@@ -10,7 +10,6 @@ module.exports = function (authRouter, passport) {
     //unsuccessful: stay on login site, display error message, respond with status code 401
     authRouter.post('/login', function (req, res) {
         passport.authenticate('local-login', function (err, user, info) {
-
             if (user) {
                 req.login(user, function (err) {
                     if (err) { return res.status(500).json({ err: err }); }
