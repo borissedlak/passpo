@@ -17,21 +17,22 @@ module.exports = {
 			return callback(false,'User data missing');
 		}*/
 		
-		console.log(request.headers.authorization);
+		//console.log(request.headers.authorization);
 
 		var postman = request.headers.postman;
 		if(postman == "true"){
 			var strategy = request.headers.strategy;
 			var accessToken = request.headers.authorization;
+			var user = request.user;
 		}
 		else{
 			var authentication = JSON.parse(request.headers.authorization);
 			var strategy = authentication.strategy;
 			var accessToken = authentication.token;
+			var user = authentication.user;
 		}
 		
 		var devToken = request.session.dev_token;
-		var user = request.user;
 
 		// This may not be a good idea according to below, but it is necessary
 		// https://stackoverflow.com/questions/39992774/verify-a-jwt-token-string-containing-bearer-with-nodejs
@@ -41,6 +42,7 @@ module.exports = {
 			return callback(false, 'Access Token missing');
 		}
 		else if (!user || user == null) {
+			console.log(user);
 			return callback(false, 'User missing');
 		}
 
