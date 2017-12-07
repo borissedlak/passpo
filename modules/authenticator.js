@@ -122,12 +122,18 @@ module.exports = {
 
 			case 'local':
 				//TODO: catch error if not decodeable
-				var decoded = jwt.decode(accessToken, config.jwt_secret);
-				if(decoded.id == user._id){
-					return callback(true, "Decoded ID matches with user");
+				try{
+					var decoded = jwt.decode(accessToken, config.jwt_secret);
+					if(decoded.id == user._id){
+						return callback(true, "Decoded ID matches with user");
+					}
+					else{
+						return callback(false, "Decoded ID represents other user");
+					}
 				}
-				else{
-					return callback(false, "Decoded ID represents other user");
+				catch(error){
+					console.log("Invalid token");
+					return callback(false, "Invalid token, could not decode");
 				}
 				break;
 
