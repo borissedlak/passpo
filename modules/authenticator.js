@@ -123,10 +123,15 @@ module.exports = {
 				break;
 
 			case 'local':
-				//TODO: catch error if not decodeable
+				//catch error if not decodeable
+				try{
+					var userID = user._id;
+				}
+				catch(error){}
+
 				try{
 					var decoded = jwt.decode(accessToken, config.jwt_secret);
-					if(decoded.id == user._id){
+					if(decoded.id == userID){
 						return callback(true, "Decoded ID matches with user");
 					}
 					else{

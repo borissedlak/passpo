@@ -181,15 +181,20 @@ app.post('/itemPickup', function (req, res) {
 					itemType = "5a26778e2c598716c06e90e5";
 					break;
 			}
+			
+			try{
+				var userID = user._id;
+			}
+			catch(error){}
 
 			//Possible optimization reduce by using findoneandupdate
-			UserItem.findOne({ "user": req.user._id, "item": itemType }, function (err, result) {
+			UserItem.findOne({ "user": userID, "item": itemType }, function (err, result) {
 				if (err) {
 					return res.status(500).send(err);
 				}
 				if (result) {
 					//existing entries amount plus one
-					UserItem.update({ "user": req.user._id, "item": itemType }, { $inc: { "amount": 1 } }, function (err, result) {
+					UserItem.update({ "user": userID, "item": itemType }, { $inc: { "amount": 1 } }, function (err, result) {
 						if (err) {
 							return res.status(500).send(err);
 						}
@@ -201,7 +206,7 @@ app.post('/itemPickup', function (req, res) {
 
 					//set userItem attributes
 					userItem.item = itemType;
-					userItem.user = req.user._id;
+					userItem.user = userID;
 					userItem.amount = 1;
 
 					userItem.save(function (err) {
