@@ -172,12 +172,12 @@ app.post('/itemPickup', function (req, res) {
 			}
 
 			var itemInputObject = req.body.userItem;
-			var itemType = ItemFunctions.itemswitch(itemInputObject.type);			
+			var itemType = ItemFunctions.itemSwitchIn(itemInputObject.type);
 			//var itemType = itemswitch(itemInputObject.type);			
-			try{
+			try {
 				var userID = user._id;
 			}
-			catch(error){}
+			catch (error) { }
 
 			//Possible optimization reduce by using findoneandupdate
 			UserItem.findOne({ "user": userID, "item": itemType }, function (err, result) {
@@ -220,10 +220,10 @@ app.post('/itemPickup', function (req, res) {
 //Get whole inventory (all items) for user
 app.get('/inventory', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
-		try{
+		try {
 			var userID = user._id;
 		}
-		catch(error){}
+		catch (error) { }
 
 		if (valid) {
 			UserItem.find({ "user": userID }, function (err, result) {
@@ -232,7 +232,12 @@ app.get('/inventory', function (req, res) {
 				}
 				if (result) {
 					//existing entry
-					res.status(201).json({ "inventory": result });
+					var ret = [];
+					for (var i = 0; i < result.length; i++) {
+						ret.push({ "item": ItemFunctions.itemSwitchOut(result[i].item[0]), "amount": result[i].amount });
+					}
+
+					res.status(201).json({ "inventory": ret });
 				} else {
 					//no existing entry
 					console.log("not found");
@@ -247,13 +252,13 @@ app.get('/inventory', function (req, res) {
 
 //Get item with id for user
 app.get('/item/:id', function (req, res) {
-	var itemType = ItemFunctions.itemswitch(req.params.id);
+	var itemType = ItemFunctions.itemSwitchIn(req.params.id);
 
 	authenticator.isValidRequest(req, function (valid, msg) {
-		try{
+		try {
 			var userID = user._id;
 		}
-		catch(error){}
+		catch (error) { }
 
 		if (valid) {
 			UserItem.findOne({ "user": userID, "item": itemType }, function (err, result) {
