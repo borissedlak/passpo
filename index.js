@@ -22,6 +22,7 @@ var User = require('./models/user');
 var Flag = require('./models/flag');
 var Item = require('./models/item');
 var UserItem = require('./models/userItem');
+var ItemFunctions = require('./modules/item');
 var config = require('./config/config.json');
 require('./modules/passport')(passport); // pass passport for configuration
 // ----------------------------------------<<
@@ -171,17 +172,8 @@ app.post('/itemPickup', function (req, res) {
 			}
 
 			var itemInputObject = req.body.userItem;
-			var itemType = null;
-
-			switch (itemInputObject.type) { //Itemtype switch
-				case "1": //Magic Hood
-					itemType = "5a26757b2c598716c06e90e4";
-					break;
-				case "2": //Mystic Compass
-					itemType = "5a26778e2c598716c06e90e5";
-					break;
-			}
-			
+			var itemType = ItemFunctions.itemswitch(itemInputObject.type);			
+			//var itemType = itemswitch(itemInputObject.type);			
 			try{
 				var userID = user._id;
 			}
@@ -216,6 +208,64 @@ app.post('/itemPickup', function (req, res) {
 
 						res.status(201).json({ message: 'Item added to the db', data: userItem });
 					});
+				}
+			});
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});
+
+//Get whole inventar (all items) for user
+app.get('/inventar', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		try{
+			var userID = user._id;
+		}
+		catch(error){}
+
+		if (valid) {
+			UserItem.find({ "user": userID }, function (err, result) {
+				if (err) {
+					return res.status(500).send(err);
+				}
+				if (result) {
+					//existing entry
+					res.status(201).json({ "inventar": result });
+				} else {
+					//no existing entry
+					console.log("not found");
+				}
+			});
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});
+
+//Get item with id for user
+app.get('/item/:id', function (req, res) {
+	var itemType = ItemFunctions.itemswitch(req.params.id);
+
+	authenticator.isValidRequest(req, function (valid, msg) {
+		try{
+			var userID = user._id;
+		}
+		catch(error){}
+
+		if (valid) {
+			UserItem.findOne({ "user": userID, "item": itemType }, function (err, result) {
+				if (err) {
+					return res.status(500).send(err);
+				}
+				if (result) {
+					//existing entry
+					res.status(201).json({ "amount": result.amount });
+				} else {
+					//no existing entry
+					console.log("not found");
 				}
 			});
 		}
