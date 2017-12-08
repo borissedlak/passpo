@@ -218,7 +218,7 @@ app.post('/itemPickup', function (req, res) {
 });
 
 //Get whole inventar (all items) for user
-app.get('/inventar', function (req, res) {
+app.get('/inventory', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		try{
 			var userID = user._id;
