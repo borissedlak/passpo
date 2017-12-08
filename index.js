@@ -217,7 +217,7 @@ app.post('/itemPickup', function (req, res) {
 	});
 });
 
-//Get whole inventar (all items) for user
+//Get whole inventory (all items) for user
 app.get('/inventory', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		try{
@@ -232,7 +232,7 @@ app.get('/inventory', function (req, res) {
 				}
 				if (result) {
 					//existing entry
-					res.status(201).json({ "inventar": result });
+					res.status(201).json({ "inventory": result });
 				} else {
 					//no existing entry
 					console.log("not found");
