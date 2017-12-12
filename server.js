@@ -156,7 +156,8 @@ app.post('/flag', function (req, res) {
 app.use(express.static(__dirname + '/public'));
 
 // Start listening for requests
-app.listen(config.port, config.address, function () {
+var port = process.env.PORT || config.port;
+app.listen(port, config.address, function () {
 	console.log("Listening on port " + config.port);
 });
 
