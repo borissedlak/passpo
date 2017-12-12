@@ -12,7 +12,7 @@ module.exports = {
 	connected: function () {
 		return (mongoose.connection.readyState == 1);
 	},
-	findOrCreateUser: function (profile, callback) {
+	/*findOrCreateUser: function (profile, callback) {
 		var user = new User();
 		//console.log(profile);
 		var query = User.findOne({ 'facebookId': profile.id },
@@ -38,5 +38,5 @@ module.exports = {
 				}
 			}
 		);
-	}
+	}*/
 }

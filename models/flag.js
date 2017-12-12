@@ -18,7 +18,10 @@ var FlagSchema   = new mongoose.Schema({
             long: Number
         }
     },
-    owner: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+    points: { type: Number, default: 100},
+    validUntil: { type: Date, default: Date.now + (1000 * 60 * 60 * 24 * 2)}, // Current date in milliseconds + 2 days
+    owner: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    ownerIcon : String
 });
 
 // Export the Mongoose model
