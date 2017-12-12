@@ -1,5 +1,6 @@
 {
 	"port": "8080",
+	"address": "0.0.0.0",
 	"application_name": "Flagture",
 	"consumer_key": 328825967593367,
 	"consumer_secret": "56b902ade32adbff835492d83eed3b3c",
