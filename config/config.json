@@ -5,5 +5,6 @@
 	"consumer_key": 328825967593367,
 	"consumer_secret": "56b902ade32adbff835492d83eed3b3c",
 	"callback_url": "/auth/facebook/callback" ,
-	"jwt_secret": "tasmanianDevil"
+	"jwt_secret": "tasmanianDevil",
+	"googlemaps_api_key" : "AIzaSyB1mp1t2pyspRBJ0p0S6aKv9Me6sfzv59E"
 }
