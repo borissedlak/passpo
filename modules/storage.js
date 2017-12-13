@@ -1,17 +1,20 @@
 var User = require('../models/user');
 var mongoose = require('mongoose');
 
+var config = JSON.parse(process.env.APP_CONFIG);
+var mongoPassword = 'SuperSecure55#!';
+var evennodeConnectionString = "mongodb://" + config.mongo.user + ":" + encodeURIComponent(mongoPassword) + "@" + config.mongo.hostString;
 var mLabConnectionString = 'mongodb://Basta55:HcAftPbye2@ds121575.mlab.com:21575/api';
-var atlasConnectionString = 'mongodb://bsedlak:TgD1MriqeWApRA8g@capturethemap-shard-00-00-newrz.mongodb.net:27017,capturethemap-shard-00-01-newrz.mongodb.net:27017,capturethemap-shard-00-02-newrz.mongodb.net:27017/test?ssl=true&replicaSet=CaptureTheMap-shard-0&authSource=admin'
 
 module.exports = {
 	// Do I need the connection anyhow?
     connect: function () {
-		mongoose.connect(mLabConnectionString)
+		var correctString = (config) ? evennodeConnectionString : mLabConnectionString;
+		mongoose.connect(correctString)
 	},
 	connected: function () {
 		return (mongoose.connection.readyState == 1);
-	},
+	}
 	/*findOrCreateUser: function (profile, callback) {
 		var user = new User();
 		//console.log(profile);
