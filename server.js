@@ -22,7 +22,7 @@ var User = require('./models/user');
 var Flag = require('./models/flag');
 var Item = require('./models/item');
 var UserItem = require('./models/userItem');
-var ItemFunctions = require('./modules/item');
+var ItemFunctions = require('./modules/item_func');
 var config = require('./config/config.json');
 require('./modules/passport')(passport); // pass passport for configuration
 // ----------------------------------------<<
