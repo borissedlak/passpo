@@ -17,24 +17,10 @@ module.exports = {
     }
     ,
     itemSwitchOut(itemType) {
-        //doest work with switch ....
-        /*switch (itemType) { //Itemtype switch
-            case hood: //Magic Hood
-                itemType = "1";
-                break;
-            case compass: //Mystic Compass
-                itemType = "2";
-                break;
-            default:
-                itemType = "-1";
-                break;
-        }
-        return itemType;*/
-
-        if(itemType == hood){
+        if(itemType == hood){ //Magic Hood
             itemType = "1";
         }
-        else if (itemType == compass){
+        else if (itemType == compass){ //Mystic Compass
             itemType = "2";
         }
         else{
