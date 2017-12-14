@@ -18,7 +18,7 @@ var UserSchema = new mongoose.Schema({
         username: String,
         registrationDate: { type: Date, default: Date.now },
         profilePicture: String,
-        score: Number
+        score: { type: Number, default:0 }
     }
 });
 

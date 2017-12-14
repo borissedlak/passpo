@@ -285,7 +285,6 @@ app.get('/item/:id', function (req, res) {
 app.get('/leaderboard', function (req, res) {
 	//If the client doesnt specify a number of users, the default is 30 			
 	var numberUsers = (req.query.numberUsers) ? req.query.numberUsers : 30;
-	console.log(numberUsers);
 	//make sure the request from the user is authenticated
 	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
