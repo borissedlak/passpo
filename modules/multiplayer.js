@@ -104,11 +104,13 @@ function getFlag(lat, lng) {
                     }
                 });*/
                 console.log("aaa");
-                Flag.find(function (err, data) {
-                    console.log("test");
+                Flag.find({}).exec(function (err, data) {
+                    console.log("1");
                     if (err) {
                         return res.status(500).json(error);
+                        console.log("2");
                     }
+                    console.log("3");
                     res.status(200).json(data);
                 });
 

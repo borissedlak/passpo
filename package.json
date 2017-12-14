@@ -1,13 +1,18 @@
 {
   "name": "flag-api",
   "version": "1.0.0",
-  "config" : { "port" : "8080" },
+  "config": {
+    "port": "8080"
+  },
   "description": "An application for leaving notes on Twitter friends and followers",
   "main": "server.js",
-  "scripts" : { "start" : "node server.js" },
+  "scripts": {
+    "start": "node server.js"
+  },
   "author": "Boris Sedlak",
   "license": "MIT",
   "dependencies": {
+    "@google/maps": "^0.4.5",
     "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
     "cookie-parser": "^1.4.0",
