@@ -280,3 +280,26 @@ app.get('/item/:id', function (req, res) {
 		}
 	});
 });
+
+//Get list of best x users
+app.get('/leaderboard', function (req, res) {
+	//If the client doesnt specify a number of users, the default is 30 			
+	var numberUsers = (req.query.numberUsers) ? req.query.numberUsers : 30;
+	console.log(numberUsers);
+	//make sure the request from the user is authenticated
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			//query parameter from client needs to be casted
+			User.find({}).sort({'global.score':-1}).limit(Number(numberUsers)).select({ _id: 1, 'global.username': 1, 'global.score': 1 }).exec(function (err, result) {
+				if (err) {
+					return res.status(500).send(err);
+				}
+				//existing entry
+				return res.status(201).json({ "leaderboard": result });
+			});
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});

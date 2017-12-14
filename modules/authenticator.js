@@ -127,7 +127,7 @@ module.exports = {
 				try{
 					var userID = user._id;
 				}
-				catch(error){}
+				catch(error){console.log("error",error);}
 
 				try{
 					var decoded = jwt.decode(accessToken, config.jwt_secret);
@@ -139,8 +139,9 @@ module.exports = {
 					}
 				}
 				catch(error){
-					console.log("Invalid token");
-					return callback(false, "Invalid token, could not decode");
+					// It has happened, that even with no (massive) error in the try section, 
+					// that errors from the server.js forced the catch section
+					return callback(false, "Invalid token, could not decode" + error);
 				}
 				break;
 
