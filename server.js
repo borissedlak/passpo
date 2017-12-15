@@ -123,7 +123,7 @@ app.post('/points', function (req, res) {
 			}
 			var user = valid;
 
-			User.update({ "_id": valid._id }, { $inc: { "score": amount } }, function (err, result) {
+			User.update({ _id: valid._id }, { $inc: { "global.score": amount } }, function (err, result) {
 				if (err) {
 					return res.status(500).send(err);
 				}
