@@ -23,6 +23,8 @@ var Flag = require('./models/flag');
 var Item = require('./models/item');
 var UserItem = require('./models/userItem');
 var ItemFunctions = require('./modules/item_func');
+var util = require('./modules/util');
+var multiplayer = require('./modules/multiplayer');
 var config = require('./config/config.json');
 require('./modules/passport')(passport); // pass passport for configuration
 // ----------------------------------------<<
@@ -313,4 +315,25 @@ app.get('/leaderboard', function (req, res) {
 			return res.status(401).json({ error: msg });
 		}
 	});
+});
+
+//Get multiplayer flag
+app.get('/getMPFlag', function (req, res) {
+	//TODO: fehler bei doppelt verschachtelten funktionen ...
+	/*authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});*/
+		multiplayer.getMPFlag(req, function (valid, msg) {
+			if (valid) {
+				return res.status(200).json({ data: msg });
+			}
+			else {
+				return res.status(401).json({ error: msg });
+			}
+		});
 });
