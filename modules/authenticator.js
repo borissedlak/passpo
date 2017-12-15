@@ -53,7 +53,7 @@ module.exports = {
 
 				//The sent token represents the one we have stored in the db after validation
 				if (user.facebook.access_token == accessToken) {
-					return callback(true, 'Token matches saved token');
+					return callback(user, 'Token matches saved token');
 				}
 				//Token does not represent the one in the db, we have to validate it again.
 				else {
@@ -85,7 +85,7 @@ module.exports = {
 													if (err)
 														return callback(false, JSON.parse({ error: err }));
 													else
-														return callback(true, JSON.parse(chunk).data);
+														return callback(user, JSON.parse(chunk).data);
 												});
 											}
 											else
@@ -109,7 +109,7 @@ module.exports = {
 								//If we rename or recreate our facebook App, we need to change the name here
 								//Be careful, in the returned json object from facebook it does only contain .data on success, .error otherwise
 								if (JSON.parse(chunk).data && JSON.parse(chunk).data.is_valid && JSON.parse(chunk).data.application == 'Mobile')
-									return callback(true, JSON.parse(chunk).data);
+									return callback(user, JSON.parse(chunk).data);
 								else
 									return callback(false, JSON.parse(chunk));
 							});
@@ -132,7 +132,7 @@ module.exports = {
 				try{
 					var decoded = jwt.decode(accessToken, config.jwt_secret);
 					if(decoded.id == userID){
-						return callback(true, "Decoded ID matches with user");
+						return callback(user, "Decoded ID matches with user");
 					}
 					else{
 						return callback(false, "Decoded ID represents other user");

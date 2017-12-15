@@ -115,8 +115,20 @@ app.get('/user', function (req, res) {
 app.post('/points', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
-			//console.log("Valid", req.headers.authorization, msg);
-			return res.status(200).json({ message: 'Valid request' });
+			if (req.body.amount == null) {
+				return res.status(400).json({ error: "Missing req.body.amount parameter" });
+			}
+			else{
+				var amount = req.body.amount;
+			}
+			var user = valid;
+
+			User.update({ "_id": valid._id }, { $inc: { "score": amount } }, function (err, result) {
+				if (err) {
+					return res.status(500).send(err);
+				}
+				return res.status(201).json({ message: 'Added '+amount+' points to '+user.global.username});
+			});
 		}
 		else {
 			//console.log("Invalid", req.headers.authorization, msg);
