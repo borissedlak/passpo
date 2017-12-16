@@ -320,20 +320,20 @@ app.get('/leaderboard', function (req, res) {
 //Get multiplayer flag
 app.get('/getMPFlag', function (req, res) {
 	//TODO: fehler bei doppelt verschachtelten funktionen ...
-	/*authenticator.isValidRequest(req, function (valid, msg) {
+	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
-			
+			multiplayer.getMPFlag(req, function (valid2, msg2) {
+				if (valid2) {
+					return res.status(200).json({ data: msg2 });
+				}
+				else {
+					return res.status(401).json({ error: msg2 });
+				}
+			});
 		}
 		else {
 			return res.status(401).json({ error: msg });
 		}
-	});*/
-		multiplayer.getMPFlag(req, function (valid, msg) {
-			if (valid) {
-				return res.status(200).json({ data: msg });
-			}
-			else {
-				return res.status(401).json({ error: msg });
-			}
-		});
+	});
+		
 });
