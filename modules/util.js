@@ -4,7 +4,7 @@ module.exports = {
     //      lat, lng -> latitude and langitude -> format: number
     //      dx, dy -> the added distance (<2km) -> format: number
     // return:
-    //      google.maps.LatLng(lat, lng)
+    //      lat, lng
     addDistanceToLatLng(lat, lng, dx, dy) {
         var R = 6378137; // Radius of the earth in m 
         var new_lat = lat + (dy / R) * (180 / Math.PI);
@@ -58,5 +58,13 @@ module.exports = {
             //not an Object so obj[k] here is a value
             console.log(obj);
         };
+    },
+
+    //generates a random number between min, max also excludes a number
+    // return:
+    //      number
+    generateRandom(min, max, except) {
+        var num = Math.floor(Math.random() * (max - min + 1)) + min;
+        return (num === except) ? generateRandom(min, max, except) : num;
     }
 }

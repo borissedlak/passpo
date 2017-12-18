@@ -239,7 +239,7 @@ app.get('/inventory', function (req, res) {
 			var userID = user._id;
 		}
 		catch (error) { }
-
+		
 		if (valid) {
 			UserItem.find({ "user": userID }, function (err, result) {
 				if (err) {
@@ -319,7 +319,6 @@ app.get('/leaderboard', function (req, res) {
 
 //Get multiplayer flag
 app.get('/getMPFlag', function (req, res) {
-	//TODO: fehler bei doppelt verschachtelten funktionen ...
 	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
 			multiplayer.getMPFlag(req, function (valid2, msg2) {
@@ -335,5 +334,45 @@ app.get('/getMPFlag', function (req, res) {
 			return res.status(401).json({ error: msg });
 		}
 	});
-		
+});
+
+//pickup multiplayer flag
+app.post('/pickupMPFlag', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			/*
+			multiplayer.pickupFlag(req, function (valid2, msg2) {
+				if (valid2) {
+					return res.status(200).json({ data: msg2 });
+				}
+				else {
+					console.log("aaa");
+					return res.status(401).json({ error: msg2 });
+				}
+			});*/
+			if (!req.body.flagId == null) {
+                return req.status(400).json({ error: "flagId Body missing" });
+            }
+
+            //TODO: error: userID is undefined
+            try {
+                var userID = user._id;
+            }
+            catch (error) { }
+
+            Flag.update({ "_id": req.body.flagId  }, { "owner": userID }, function (err, result) {
+                if (err) {
+                    console.log("error update");
+					//return callback(false, err);
+					return res.status(500).send(err);
+				}
+				res.status(201).json({ message: 'Item updated in db' });
+                //return callback(true, 'Item updated in db');
+            });
+		}
+		else {
+			console.log("bb");
+			return res.status(401).json({ error: msg });
+		}
+	});
 });

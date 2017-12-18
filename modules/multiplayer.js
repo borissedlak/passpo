@@ -2,6 +2,7 @@
 var config = require('../config/config.json');
 var gamevariable = require('../config/gamevariable.json');
 var Flag = require('../models/flag');
+var User = require('../models/user');
 var util = require('../modules/util');
 
 // --------- VARIABLES --------------->>
@@ -11,10 +12,9 @@ var googleMapsClient = require('@google/maps').createClient({ //set google api k
 });
 
 module.exports = {
-
     //get the multiplayer flags nearby
     getMPFlag: function (request, callback) {
-        var googleResults = [];
+        var flagResults = [];
         var randomValue;
 
         if (request.query.lat && request.query.lng) {
@@ -22,83 +22,90 @@ module.exports = {
             playerPositionLat = request.query.lat;
             playerPositionLong = request.query.lng;
 
+            //get flag in db
             Flag.find(function (err, result) {
                 if (err) {
                     return callback(false, err);;
                 }
                 if (result) {
-                    //existing entry
+                    //existing entries
                     for (var i = 0; i < result.length; i++) {
-                        if (util.getDistanceFromLatLngInM(playerPositionLat, playerPositionLong, result[i].pos.current.lat, result[i].pos.current.long) >= gamevariable.spawnradius) {  //check if in 2km
-                            //TODO: mit mehreren Flaggen
-                            return callback(true, result[i]);
+                        if (util.getDistanceFromLatLngInM(playerPositionLat, playerPositionLong, result[i].pos.current.lat, result[i].pos.current.long) <= gamevariable.spawnradius) {  //check if in 2km
+                            flagResults.push(result[i]);
                         }
                     }
-                    //create new multiplayer flag in a 2 km radius
-                    /*console.log(util.addDistanceToLatLng(48.213980, 15.631649, 2000, 2000));
-                    console.log(util.getDistanceFromLatLngInM(48.213980, 15.631649, 48.23194630568239, 15.658611243083087));*/
-
-                    googleMapsClient.placesNearby({
-                        location: [request.query.lat, request.query.lng],
-                        radius: spawnradius
-                    }, function (err, response) {
-                        if (!err) {
-                            if (response.json.status == "OK") {   //found locations nearby 
-                                //search db
-                                console.log('location found nearby');
-
-                                //console.log(response.json.results);
-                                //save longitude and latitude in array
-                                for (var i in response.json) {
-                                    for (var j in response.json[i]) {
-                                        if (response.json[i][j].geometry != undefined) {
-                                            glocation = {
-                                                'lat': response.json[i][j].geometry.location.lat,
-                                                'lng': response.json[i][j].geometry.location.lng
-                                            };
-                                            googleResults.push(glocation);
+                    if (flagResults.length != 0) {
+                        //return flag found in db
+                        console.log("return flag found in db");
+                        return callback(true, flagResults);
+                    }
+                    else {
+                        console.log("not found in db -> google search");
+                        //if not found in db create a new one with google placesNearby function
+                        googleMapsClient.placesNearby({
+                            location: [request.query.lat, request.query.lng],
+                            radius: spawnradius
+                            //TODO: type ?
+                        }, function (err, response) {
+                            if (!err) {
+                                if (response.json.status == "OK") {   //found locations nearby 
+                                    //save longitude and latitude in array
+                                    for (var i in response.json) {
+                                        for (var j in response.json[i]) {
+                                            if (response.json[i][j].geometry != undefined) {
+                                                glocation = {
+                                                    'lat': response.json[i][j].geometry.location.lat,
+                                                    'lng': response.json[i][j].geometry.location.lng
+                                                };
+                                                flagResults.push(glocation);
+                                            }
                                         }
                                     }
+
+                                    randomValue = Math.floor((Math.random() * (flagResults.length - 1)));
+                                    destination = util.generateRandom(0, flagResults.length - 1, randomValue);
+
+                                    //TODO: check if its not too close
+
+                                    var flag = new Flag();
+                                    flag.owner = null;
+                                    flag.points = gamevariable.normalflag;
+                                    flag.pos = {
+                                        "current": {
+                                            "lat": flagResults[randomValue].lat,
+                                            "long": flagResults[randomValue].lng
+                                        },
+                                        "destination": {
+                                            "lat": flagResults[destination].lat,
+                                            "long": flagResults[destination].lng
+                                        },
+                                        "origin": {
+                                            "lat": flagResults[randomValue].lat,
+                                            "long": flagResults[randomValue].lng
+                                        }
+                                    };
+
+                                    flag.save(function (err) {
+                                        if (err) {
+                                            return callback(false, err);
+                                        }
+                                        return callback(true, flag);
+                                    });
                                 }
-                                
-                                randomValue = Math.floor((Math.random() * (googleResults.length - 1)));
-                                console.log(googleResults[randomValue]);
-
-                                var flag = new Flag();
-                                flag.owner = null;
-                                flag.points = gamevariable.normalflag;
-                                flag.pos = {
-                                    "current": {
-                                        "lat": googleResults[randomValue].lat,
-                                        "long": googleResults[randomValue].lng
-                                    },
-                                    "destination": {
-                                        //TODO
-                                        "lat": 27,
-                                        "long": 27
-                                    },
-                                    "origin": {
-                                        "lat": googleResults[randomValue].lat,
-                                        "long": googleResults[randomValue].lng
-                                    }
-                                };
-
-                                flag.save(function (err) {
-                                    if (err) {
-                                        return callback(false, err);
-                                    }
-                                    return callback(true, flag);
-                                });
+                                else {
+                                    //no found locations nearby 
+                                    return callback(false, "no location found nearby");
+                                }
                             }
-                            else {   //no found locations nearby 
-                                return callback(false, "no location found nearby");
+                            else {
+                                //error
+                                return callback(false, err);
                             }
-                        }
-                        else {
-                            //error
-                            return callback(false, "missing lat and/or long");
-                        }
-                    });
+                        });
+                    }
+                }
+                else {
+                    return callback(false, "no results in db");
                 }
             });
         }
@@ -109,13 +116,25 @@ module.exports = {
     ,
 
     //pick up a multiplayer flag
-    setFlag(lat, lng) {
-        //TODO:
-        /*Flag.update({ "points": 100 }, { "points": 101 }, function (err, res) {
-            if (err) {
-                return callback(false, err);
+    pickupFlag: function (req, userID, callback) {
+        {
+            if (!req.body.flagId == null) {
+                return req.status(400).json({ error: "flagId Body missing" });
             }
-            return callback(true, result);
-        });*/
+
+            //TODO: error: userID is undefined
+            try {
+                var userID = user._id;
+            }
+            catch (error) { }
+
+            Flag.update({ "_id": req.body.flagId  }, { "owner": userID }, function (err, result) {
+                if (err) {
+                    console.log("error update");
+                    return callback(false, err);
+                }
+                return callback(true, 'Item updated in db');
+            });
+        }
     }
 }
