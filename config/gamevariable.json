@@ -1,3 +1,4 @@
 {
-    "spawnradius" : 500
+    "spawnradius" : 500,
+    "normalflag" : 100
 }

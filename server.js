@@ -23,6 +23,8 @@ var Flag = require('./models/flag');
 var Item = require('./models/item');
 var UserItem = require('./models/userItem');
 var ItemFunctions = require('./modules/item_func');
+var util = require('./modules/util');
+var multiplayer = require('./modules/multiplayer');
 var config = require('./config/config.json');
 require('./modules/passport')(passport); // pass passport for configuration
 // ----------------------------------------<<
@@ -231,6 +233,14 @@ app.post('/itemPickup', function (req, res) {
 //Get whole inventory (all items) for user
 app.get('/inventory', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
+<<<<<<< HEAD
+=======
+		try {
+			var userID = user._id;
+		}
+		catch (error) { }
+		
+>>>>>>> a51a80d2db3fbf898c1733017b17dfe8999ecfde
 		if (valid) {
 			
 			userID = valid._id;
@@ -304,6 +314,66 @@ app.get('/leaderboard', function (req, res) {
 			});
 		}
 		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});
+
+//Get multiplayer flag
+app.get('/getMPFlag', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			multiplayer.getMPFlag(req, function (valid2, msg2) {
+				if (valid2) {
+					return res.status(200).json({ data: msg2 });
+				}
+				else {
+					return res.status(401).json({ error: msg2 });
+				}
+			});
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});
+
+//pickup multiplayer flag
+app.post('/pickupMPFlag', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			/*
+			multiplayer.pickupFlag(req, function (valid2, msg2) {
+				if (valid2) {
+					return res.status(200).json({ data: msg2 });
+				}
+				else {
+					console.log("aaa");
+					return res.status(401).json({ error: msg2 });
+				}
+			});*/
+			if (!req.body.flagId == null) {
+                return req.status(400).json({ error: "flagId Body missing" });
+            }
+
+            //TODO: error: userID is undefined
+            try {
+                var userID = user._id;
+            }
+            catch (error) { }
+
+            Flag.update({ "_id": req.body.flagId  }, { "owner": userID }, function (err, result) {
+                if (err) {
+                    console.log("error update");
+					//return callback(false, err);
+					return res.status(500).send(err);
+				}
+				res.status(201).json({ message: 'Item updated in db' });
+                //return callback(true, 'Item updated in db');
+            });
+		}
+		else {
+			console.log("bb");
 			return res.status(401).json({ error: msg });
 		}
 	});
