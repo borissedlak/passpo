@@ -12,7 +12,6 @@ module.exports = function (passport) {
 	},
 		function (accessToken, refreshToken, profile, callback) {
 			process.nextTick(function () {
-				console.log("FB Passport");
 				User.findOne({ 'facebook.facebookId': profile.id },
 					function (err, user) {
 						if (err)
