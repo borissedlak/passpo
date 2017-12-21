@@ -145,18 +145,22 @@ app.post('/points', function (req, res) {
 
 
 app.post('/upload', function(req, res){
+	authenticator.isValidRequest(req, function (valid, msg) {
+		// #1 Make sure the post request contains a valid facebook token
+		if (valid) {
+			if(!req.files)
+				return res.status(400).send('Please choose a file first!'+ req.files);
 
-	if(!req.files)
-		return res.status(400).send('Please choose a file first!'+ req.files);
+				let imageFile = req.files.file;
+				let pictureID =  valid._id;
 
-		let imageFile = req.files.file;
-		let pictureID =  User._id;
-
-	imageFile.mv(`profile_pictures/${pictureID}.jpg`, function(err){
-		if(err)
-			return res.status(500).send(err);
-		
-		res.send('u uploded lol');
+			imageFile.mv(`profile_pictures/${pictureID}.jpg`, function(err){
+				if(err)
+					return res.status(500).send(err);
+				
+				return res.status(200).send('u uploded lol');
+			});
+		}
 	});
 });
 
