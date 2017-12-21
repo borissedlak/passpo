@@ -26,13 +26,13 @@ module.exports = function (passport) {
 							newUser.facebook.profileName = profile.displayName;
 							newUser.facebook.access_token = accessToken;
 							newUser.global.username = profile.displayName;
-							//newUser.global.profilePicture = profile.picture;
+							newUser.global.profilePicture = profile.picture;
 
 							// Save the user and check for errors
 							newUser.save(function (err) {
 								if (err)
 									return callback(null, newUser, { status: 500, message: 'Couldnt insert user' });
-								return callback(null, newUser, { status: 200, message: 'New user inserted' });
+								return callback(null, newUser, { status: 201, message: 'New user inserted' });
 							});
 						}
 					}

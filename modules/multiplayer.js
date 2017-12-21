@@ -25,7 +25,7 @@ module.exports = {
             //get flag in db
             Flag.find(function (err, result) {
                 if (err) {
-                    return callback(false, err);;
+                    return callback(false, err);
                 }
                 if (result) {
                     //existing entries
