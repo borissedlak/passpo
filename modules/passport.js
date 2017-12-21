@@ -26,7 +26,7 @@ module.exports = function (passport) {
 							newUser.facebook.profileName = profile.displayName;
 							newUser.facebook.access_token = accessToken;
 							newUser.global.username = profile.displayName;
-							//newUser.global.profilePicture = profile.picture;
+							newUser.global.profilePicture = profile.picture;
 
 							// Save the user and check for errors
 							newUser.save(function (err) {
