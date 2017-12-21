@@ -19,6 +19,7 @@
     "cors": "^2.8.4",
     "ejs": "^2.3.4",
     "express": "^4.13.3",
+    "express-fileupload": "^0.3.0",
     "express-session": "^1.15.6",
     "jsonwebtoken": "^8.1.0",
     "jwt-simple": "^0.5.1",

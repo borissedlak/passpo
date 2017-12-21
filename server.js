@@ -1,6 +1,7 @@
 // ------------ BASIC INCLUDES ------------>>
 //var url = require('url');
 var express = require('express');
+var fileUpload = require('express-fileupload');
 var app = express();
 //CORS is about whether the express server allows requests from different servers.
 //https://stackoverflow.com/questions/7067966/how-to-allow-cors
@@ -12,6 +13,7 @@ var fs = require('fs');
 var mongoose = require('mongoose');
 var https = require('https');
 var passport = require('passport');
+
 // ----------------------------------------<<
 
 
@@ -45,6 +47,8 @@ app.use(passport.session());
 app.use(bodyParser.urlencoded({ extended: false }));
 //Without the correct setup body parser it is not possible to deserialize json bodies
 app.use(bodyParser.json());
+
+app.use(fileUpload());
 // ----------------------------------------<<
 
 
@@ -136,6 +140,23 @@ app.post('/points', function (req, res) {
 			//console.log("Invalid", req.headers.authorization, msg);
 			return res.status(401).json({ error: msg });
 		}
+	});
+});
+
+
+app.post('/upload', function(req, res){
+
+	if(!req.files)
+		return res.status(400).send('Please choose a file first!'+ req.files);
+
+		let imageFile = req.files.file;
+		let pictureID =  User._id;
+
+	imageFile.mv(`profile_pictures/${pictureID}.jpg`, function(err){
+		if(err)
+			return res.status(500).send(err);
+		
+		res.send('u uploded lol');
 	});
 });
 
