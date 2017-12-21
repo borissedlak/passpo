@@ -60,10 +60,11 @@ module.exports = function (authRouter, passport) {
         console.log("FB Callback")
         passport.authenticate('facebook', function (err, user, info) {
             if (user) {
-                console.log(user);
                 req.login(user, function (err) {
                     if (err) { return res.status(500).json({ err: err }); }
-                    return res.status(info.status).json({ user: req.user, info: info });
+                    else{
+                        return res.status(info.status).json({ user: user, info: info });
+                    }
                 });
             }
             else
