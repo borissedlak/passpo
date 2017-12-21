@@ -32,7 +32,7 @@ module.exports = function (passport) {
 							newUser.save(function (err) {
 								if (err)
 									return callback(null, newUser, { status: 500, message: 'Couldnt insert user' });
-								return callback(null, newUser, { status: 200, message: 'New user inserted' });
+								return callback(null, newUser, { status: 201, message: 'New user inserted' });
 							});
 						}
 					}

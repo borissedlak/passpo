@@ -248,7 +248,7 @@ app.get('/inventory', function (req, res) {
 						ret.push({ "item": ItemFunctions.itemSwitchOut(result[i].item[0]), "amount": result[i].amount });
 					}
 
-					res.status(201).json({ "inventory": ret });
+					res.status(200).json({ "inventory": ret });
 				} else {
 					//no existing entry
 					console.log("not found");
