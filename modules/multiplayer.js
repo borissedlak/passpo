@@ -69,7 +69,7 @@ module.exports = {
 
                                     var flag = new Flag();
                                     flag.owner = null;
-                                    flag.points = gamevariable.normalflag;
+                                    flag.points = gamevariable.normalMPFlag;
                                     flag.pos = {
                                         "current": {
                                             "lat": flagResults[randomValue].lat,
@@ -89,7 +89,9 @@ module.exports = {
                                         if (err) {
                                             return callback(false, err);
                                         }
-                                        return callback(true, flag);
+                                        var result = []
+                                        result.push(flag);
+                                        return callback(true, result);
                                     });
                                 }
                                 else {
@@ -116,25 +118,41 @@ module.exports = {
     ,
 
     //pick up a multiplayer flag
-    pickupFlag: function (req, userID, callback) {
+    /*pickupFlag: function (req, flagId, userID, callback) {
         {
-            if (!req.body.flagId == null) {
-                return req.status(400).json({ error: "flagId Body missing" });
-            }
-
-            //TODO: error: userID is undefined
-            try {
-                var userID = user._id;
-            }
-            catch (error) { }
-
-            Flag.update({ "_id": req.body.flagId  }, { "owner": userID }, function (err, result) {
+            console.log("userID "+userID+" flagId "+flagId);
+            Flag.update({ "_id": flagId  }, { "owner": userID }, function (err, result) {
                 if (err) {
-                    console.log("error update");
                     return callback(false, err);
                 }
                 return callback(true, 'Item updated in db');
             });
         }
+    }*/
+}
+
+/*
+{
+    "data": {
+        "__v": 0,
+        "_id": "5a3ccea5f0c0963c6888db19",
+        "owner": null,
+        "validUntil": 1514107052348,
+        "points": 100,
+        "pos": {
+            "current": {
+                "lat": 47.9628705,
+                "long": 16.4072215
+            },
+            "destination": {
+                "lat": 47.963355,
+                "long": 16.4105572
+            },
+            "origin": {
+                "lat": 47.9628705,
+                "long": 16.4072215
+            }
+        }
     }
 }
+*/
