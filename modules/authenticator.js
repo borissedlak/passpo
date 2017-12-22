@@ -84,7 +84,6 @@ module.exports = {
 											//If we rename or recreate our facebook App, we need to change the name here
 											//Be careful, in the returned json object from facebook it does only contain .data on success, .error otherwise
 											var chunkData = JSON.parse(chunk).data;
-											console.log('1', chunkData.application);
 											if (chunkData && chunkData.is_valid && chunkData.application == config.application_name) {
 												User.findOneAndUpdate({ '_id': user._id }, { $set: { 'facebook.access_token': accessToken } }, { new: true }, function (err, doc) {
 													if (err)
@@ -114,11 +113,10 @@ module.exports = {
 								if (chunkData && chunkData.is_valid && chunkData.application == config.application_name) {
 									User.findOneAndUpdate({ '_id': user._id }, { $set: { 'facebook.access_token': accessToken } }, { new: true }, function (err, doc) {
 										if (err){
-											console.log('2 Err');
 											return callback(false, JSON.parse({ error: err }));
 										}
 										else{
-											console.log('2 No Err');
+											console.log(doc);
 											return callback(user, chunkData);
 										}
 									});
