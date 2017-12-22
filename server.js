@@ -380,7 +380,7 @@ app.post('/pickupMPFlag', function (req, res) {
 						//return callback(false, err);
 						return res.status(500).send(err);
 					}
-					res.status(200).json({ message: 'Item updated in db' });
+					return res.status(200).json({ message: 'Item updated in db' });
 				});
 			}
 		}
