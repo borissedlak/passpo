@@ -53,6 +53,7 @@ module.exports = {
 
 				//The sent token represents the one we have stored in the db after validation
 				if (user.facebook.access_token == accessToken) {
+					console.log('facebook: 1');
 					return callback(user, 'Token matches saved token');
 				}
 				//Token does not represent the one in the db, we have to validate it again.
@@ -60,6 +61,7 @@ module.exports = {
 					// Check whether there exists an access token for the application in the session storage
 					// The token is needed for the verification of the user's access token, so we definitly know that it was created by our app.
 					if (!devToken || devToken == null) {
+						console.log('facebook: 2');
 						https.get(
 							'https://graph.facebook.com/oauth/access_token?grant_type=client_credentials&client_id=' +
 							config.consumer_key + '&client_secret=' + config.consumer_secret
@@ -101,11 +103,13 @@ module.exports = {
 							});
 					}
 					else {
+						console.log('facebook: 3');
 						// Verifies if the users accessToken was created by the facebook application, passed in the devToken
 						https.get('https://graph.facebook.com/debug_token?input_token=' + accessToken + '&access_token=' + devToken, function (resp) {
 							resp.on('data', function (chunk) {
 								//console.log(JSON.parse(chunk).data);
-
+									
+								console.log('facebook: 4');
 								//If we rename or recreate our facebook App, we need to change the name here
 								//Be careful, in the returned json object from facebook it does only contain .data on success, .error otherwise
 								if (JSON.parse(chunk).data && JSON.parse(chunk).data.is_valid && JSON.parse(chunk).data.application == 'Mobile')
