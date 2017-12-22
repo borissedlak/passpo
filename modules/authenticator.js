@@ -116,8 +116,9 @@ module.exports = {
 											return callback(false, JSON.parse({ error: err }));
 										}
 										else{
-											console.log(doc);
-											return callback(user, chunkData);
+											//console.log(doc);
+											//The quick authentication strategy isn't working because I need to return the new user to the client and store it there for authentication
+											return callback(doc, chunkData);
 										}
 									});
 								}
