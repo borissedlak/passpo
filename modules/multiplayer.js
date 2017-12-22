@@ -89,7 +89,9 @@ module.exports = {
                                         if (err) {
                                             return callback(false, err);
                                         }
-                                        return callback(true, flag);
+                                        var result = []
+                                        result.push(flag);
+                                        return callback(true, result);
                                     });
                                 }
                                 else {
@@ -128,3 +130,29 @@ module.exports = {
         }
     }*/
 }
+
+/*
+{
+    "data": {
+        "__v": 0,
+        "_id": "5a3ccea5f0c0963c6888db19",
+        "owner": null,
+        "validUntil": 1514107052348,
+        "points": 100,
+        "pos": {
+            "current": {
+                "lat": 47.9628705,
+                "long": 16.4072215
+            },
+            "destination": {
+                "lat": 47.963355,
+                "long": 16.4105572
+            },
+            "origin": {
+                "lat": 47.9628705,
+                "long": 16.4072215
+            }
+        }
+    }
+}
+*/
