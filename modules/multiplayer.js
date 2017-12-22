@@ -118,9 +118,6 @@ module.exports = {
     //pick up a multiplayer flag
     /*pickupFlag: function (req, flagId, userID, callback) {
         {
-            if (!req.body.flagId == null) {
-                return req.status(400).json({ error: "flagId Body missing" });
-            }
             console.log("userID "+userID+" flagId "+flagId);
             Flag.update({ "_id": flagId  }, { "owner": userID }, function (err, result) {
                 if (err) {
