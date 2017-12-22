@@ -124,7 +124,7 @@ app.post('/points', function (req, res) {
 			if (req.body.amount == null) {
 				return res.status(400).json({ error: "Missing req.body.amount parameter" });
 			}
-			else{
+			else {
 				var amount = req.body.amount;
 			}
 			var user = valid;
@@ -133,7 +133,7 @@ app.post('/points', function (req, res) {
 				if (err) {
 					return res.status(500).send(err);
 				}
-				return res.status(201).json({ message: 'Added '+amount+' points to '+user.global.username});
+				return res.status(201).json({ message: 'Added ' + amount + ' points to ' + user.global.username });
 			});
 		}
 		else {
@@ -144,20 +144,20 @@ app.post('/points', function (req, res) {
 });
 
 
-app.post('/upload', function(req, res){
+app.post('/upload', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		// #1 Make sure the post request contains a valid facebook token
 		if (valid) {
-			if(!req.files)
-				return res.status(400).send('Please choose a file first!'+ req.files);
+			if (!req.files)
+				return res.status(400).send('Please choose a file first!' + req.files);
 
-				let imageFile = req.files.file;
-				let pictureID =  valid._id;
+			let imageFile = req.files.file;
+			let pictureID = valid._id;
 
-			imageFile.mv(`profile_pictures/${pictureID}.jpg`, function(err){
-				if(err)
+			imageFile.mv(`profile_pictures/${pictureID}.jpg`, function (err) {
+				if (err)
 					return res.status(500).send(err);
-				
+
 				return res.status(200).send('u uploded lol');
 			});
 		}
@@ -259,7 +259,7 @@ app.post('/itemPickup', function (req, res) {
 app.get('/inventory', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
-			
+
 			userID = valid._id;
 
 			UserItem.find({ "user": userID }, function (err, result) {
@@ -292,7 +292,6 @@ app.get('/item/:id', function (req, res) {
 
 	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
-			
 			var userID = valid._id;
 
 			UserItem.findOne({ "user": userID, "item": itemType }, function (err, result) {
@@ -322,7 +321,7 @@ app.get('/leaderboard', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
 			//query parameter from client needs to be casted
-			User.find({}).sort({'global.score':-1}).limit(Number(numberUsers)).select({ _id: 1, 'global.username': 1, 'global.score': 1 }).exec(function (err, result) {
+			User.find({}).sort({ 'global.score': -1 }).limit(Number(numberUsers)).select({ _id: 1, 'global.username': 1, 'global.score': 1 }).exec(function (err, result) {
 				if (err) {
 					return res.status(500).send(err);
 				}
@@ -345,7 +344,7 @@ app.get('/getMPFlag', function (req, res) {
 					return res.status(200).json({ data: msg2 });
 				}
 				else {
-					return res.status(401).json({ error: msg2 });
+					return res.status(500).json({ error: msg2 });
 				}
 			});
 		}
@@ -359,38 +358,33 @@ app.get('/getMPFlag', function (req, res) {
 app.post('/pickupMPFlag', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
-			/*
-			multiplayer.pickupFlag(req, function (valid2, msg2) {
-				if (valid2) {
-					return res.status(200).json({ data: msg2 });
-				}
-				else {
-					console.log("aaa");
-					return res.status(401).json({ error: msg2 });
-				}
-			});*/
+
 			if (!req.body.flagId == null) {
-                return req.status(400).json({ error: "flagId Body missing" });
-            }
+				return req.status(400).json({ error: "flagId Body missing" });
+			}
+			else {
+				var userID = valid._id;
+				var flagId = req.body.flagId;
 
-            //TODO: error: userID is undefined
-            try {
-                var userID = user._id;
-            }
-            catch (error) { }
-
-            Flag.update({ "_id": req.body.flagId  }, { "owner": userID }, function (err, result) {
-                if (err) {
-                    console.log("error update");
-					//return callback(false, err);
-					return res.status(500).send(err);
-				}
-				res.status(201).json({ message: 'Item updated in db' });
-                //return callback(true, 'Item updated in db');
-            });
+				/*multiplayer.pickupFlag(req, userID, flagId, function (valid2, msg2) {
+					if (valid2) {
+						return res.status(200).json({ data: msg2 });
+					}
+					else {
+						return res.status(500).json({ error: msg2 });
+					}
+				});*/
+				Flag.update({ "_id": flagId  }, { "owner": userID }, function (err, result) {
+					if (err) {
+						console.log("error update");
+						//return callback(false, err);
+						return res.status(500).send(err);
+					}
+					res.status(200).json({ message: 'Item updated in db' });
+				});
+			}
 		}
 		else {
-			console.log("bb");
 			return res.status(401).json({ error: msg });
 		}
 	});
