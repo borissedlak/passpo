@@ -51,6 +51,8 @@ module.exports = {
 			//TODO: Simplify facebook strategie, remove duplicate code
 			case 'facebook':
 
+				console.log(accessToken == user.facebook.access_token, user.facebook.access_token, accessToken);
+
 				//The sent token represents the one we have stored in the db after validation
 				if (user.facebook.access_token == accessToken) {
 					console.log('facebook: 0');
@@ -109,13 +111,16 @@ module.exports = {
 							resp.on('data', function (chunk) {
 								//Reinsert the token to the user for quick authentication
 								var chunkData = JSON.parse(chunk).data;
-								console.log('2', chunkData.application);
 								if (chunkData && chunkData.is_valid && chunkData.application == config.application_name) {
 									User.findOneAndUpdate({ '_id': user._id }, { $set: { 'facebook.access_token': accessToken } }, { new: true }, function (err, doc) {
-										if (err)
+										if (err){
+											console.log('2 Err');
 											return callback(false, JSON.parse({ error: err }));
-										else
-											return callback(user, JSON.parse(chunk).data);
+										}
+										else{
+											console.log('2 No Err');
+											return callback(user, chunkData);
+										}
 									});
 								}
 								else
