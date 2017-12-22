@@ -354,7 +354,7 @@ app.get('/getMPFlag', function (req, res) {
 	});
 });
 
-//pickup multiplayer flag
+//pickup multiplayer flag -> sets owner for the flag
 app.post('/pickupMPFlag', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
@@ -376,8 +376,6 @@ app.post('/pickupMPFlag', function (req, res) {
 				});*/
 				Flag.update({ "_id": flagId  }, { "owner": userID }, function (err, result) {
 					if (err) {
-						console.log("error update");
-						//return callback(false, err);
 						return res.status(500).send(err);
 					}
 					return res.status(200).json({ message: 'Item updated in db' });
