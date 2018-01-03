@@ -51,7 +51,7 @@ module.exports = {
 			//TODO: Simplify facebook strategie, remove duplicate code
 			case 'facebook':
 
-				console.log(accessToken == user.facebook.access_token, user.facebook.access_token, accessToken);
+				//console.log(accessToken == user.facebook.access_token, user.facebook.access_token, accessToken);
 
 				//The sent token represents the one we have stored in the db after validation
 				if (user.facebook.access_token == accessToken) {
