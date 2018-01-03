@@ -62,10 +62,24 @@ module.exports = {
                                         }
                                     }
 
-                                    randomValue = Math.floor((Math.random() * (flagResults.length - 1)));
-                                    destination = util.generateRandom(0, flagResults.length - 1, randomValue);
 
-                                    //TODO: check if its not too close
+                                    randomValue = Math.floor((Math.random() * (flagResults.length - 1)));
+                                    //var randomLocation;
+                                    var destination;
+                                    var loops = true;
+                                    var i = 0;
+                                    while (loops || (i < gamevariable.maxloops)) {
+                                        i++;
+                                        destination = util.generateRandom(0, flagResults.length - 1, randomValue);
+                                        // check if its not too close
+                                        if (util.getDistanceFromLatLngInM(flagResults[randomValue].lat, flagResults[randomValue].lng, flagResults[destination].lat, flagResults[destination].lng) < gamevariable.spawnradius + 1) {
+                                            // found right destination, end search
+                                            loops = false;
+                                        }
+                                    }
+
+                                    //TODO: create random location if no right location is found
+                                    
 
                                     var flag = new Flag();
                                     flag.owner = null;
@@ -129,30 +143,10 @@ module.exports = {
             });
         }
     }*/
-}
 
-/*
-{
-    "data": {
-        "__v": 0,
-        "_id": "5a3ccea5f0c0963c6888db19",
-        "owner": null,
-        "validUntil": 1514107052348,
-        "points": 100,
-        "pos": {
-            "current": {
-                "lat": 47.9628705,
-                "long": 16.4072215
-            },
-            "destination": {
-                "lat": 47.963355,
-                "long": 16.4105572
-            },
-            "origin": {
-                "lat": 47.9628705,
-                "long": 16.4072215
-            }
-        }
+    //
+    getRandomLocation() {
+
     }
+
 }
-*/
