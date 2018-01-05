@@ -381,7 +381,7 @@ app.post('/pickupMPFlag', function (req, res) {
 });
 
 //pickup multiplayer flag -> sets owner for the flag
-app.post('/drop', function (req, res) {
+app.post('/dropMPFlag', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
 			if (!req.body.flagId == null) {
