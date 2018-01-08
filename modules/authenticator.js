@@ -51,8 +51,11 @@ module.exports = {
 			//TODO: Simplify facebook strategie, remove duplicate code
 			case 'facebook':
 
+				//console.log(accessToken == user.facebook.access_token, user.facebook.access_token, accessToken);
+
 				//The sent token represents the one we have stored in the db after validation
 				if (user.facebook.access_token == accessToken) {
+					console.log('facebook: quick authentication route');
 					return callback(user, 'Token matches saved token');
 				}
 				//Token does not represent the one in the db, we have to validate it again.
@@ -80,7 +83,8 @@ module.exports = {
 
 											//If we rename or recreate our facebook App, we need to change the name here
 											//Be careful, in the returned json object from facebook it does only contain .data on success, .error otherwise
-											if (JSON.parse(chunk).data && JSON.parse(chunk).data.is_valid && JSON.parse(chunk).data.application == config.application_name) {
+											var chunkData = JSON.parse(chunk).data;
+											if (chunkData && chunkData.is_valid && chunkData.application == config.application_name) {
 												User.findOneAndUpdate({ '_id': user._id }, { $set: { 'facebook.access_token': accessToken } }, { new: true }, function (err, doc) {
 													if (err)
 														return callback(false, JSON.parse({ error: err }));
@@ -104,14 +108,23 @@ module.exports = {
 						// Verifies if the users accessToken was created by the facebook application, passed in the devToken
 						https.get('https://graph.facebook.com/debug_token?input_token=' + accessToken + '&access_token=' + devToken, function (resp) {
 							resp.on('data', function (chunk) {
-								//console.log(JSON.parse(chunk).data);
-
-								//If we rename or recreate our facebook App, we need to change the name here
-								//Be careful, in the returned json object from facebook it does only contain .data on success, .error otherwise
-								if (JSON.parse(chunk).data && JSON.parse(chunk).data.is_valid && JSON.parse(chunk).data.application == 'Mobile')
-									return callback(user, JSON.parse(chunk).data);
+								//Reinsert the token to the user for quick authentication
+								var chunkData = JSON.parse(chunk).data;
+								if (chunkData && chunkData.is_valid && chunkData.application == config.application_name) {
+									User.findOneAndUpdate({ '_id': user._id }, { $set: { 'facebook.access_token': accessToken } }, { new: true }, function (err, doc) {
+										if (err){
+											return callback(false, JSON.parse({ error: err }));
+										}
+										else{
+											//console.log(doc);
+											//The quick authentication strategy isn't working because I need to return the new user to the client and store it there for authentication
+											return callback(doc, chunkData);
+										}
+									});
+								}
 								else
 									return callback(false, JSON.parse(chunk));
+
 							});
 						}).on("error", function (e) {
 							console.log("Got error: " + e.message);

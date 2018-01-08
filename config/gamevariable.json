@@ -1,4 +1,7 @@
 {
     "spawnradius" : 500,
-    "normalMPFlag" : 100
+    "normalMPFlag" : 250,
+    "activeDistance" : 50,
+    "maxLoops" : 3,
+    "maxSpawnDistance" : 1000
 }

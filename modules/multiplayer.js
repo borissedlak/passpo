@@ -47,6 +47,7 @@ module.exports = {
                             radius: spawnradius
                             //TODO: type ?
                         }, function (err, response) {
+                            console.log("aaa" + response.json.status);
                             if (!err) {
                                 if (response.json.status == "OK") {   //found locations nearby 
                                     //save longitude and latitude in array
@@ -63,9 +64,26 @@ module.exports = {
                                     }
 
                                     randomValue = Math.floor((Math.random() * (flagResults.length - 1)));
-                                    destination = util.generateRandom(0, flagResults.length - 1, randomValue);
+                                    var randomDestination;
+                                    var destination;
+                                    var loops = true;
+                                    var i = 0;
+                                    while (loops || (i < gamevariable.maxloops)) {
+                                        i++;
+                                        destination = util.generateRandom(0, flagResults.length - 1, randomValue);
+                                        // check if its not too close
+                                        if (util.getDistanceFromLatLngInM(flagResults[randomValue].lat, flagResults[randomValue].lng, flagResults[destination].lat, flagResults[destination].lng) < gamevariable.spawnradius + 1) {
+                                            // found right destination, end search
+                                            loops = false;
+                                        }
+                                    }
 
-                                    //TODO: check if its not too close
+                                    //create random destination if no right location is found
+                                    if (i == loops) {
+                                        randomDestination = util.addDistanceToLatLng(flagResults[randomValue].lat, flagResults[randomValue].lng, Math.floor((Math.random() * gamevariable.spawnradius)), Math.floor((Math.random() * gamevariable.spawnradius)));
+                                        flagResults[destination].lat = randomDestination.lat;
+                                        flagResults[destination].lng = randomDestination.lng;
+                                    }
 
                                     var flag = new Flag();
                                     flag.owner = null;
@@ -94,9 +112,44 @@ module.exports = {
                                         return callback(true, result);
                                     });
                                 }
-                                else {
+                                else if (response.json.status == "ZERO_RESULTS") {
                                     //no found locations nearby 
-                                    return callback(false, "no location found nearby");
+                                    //create random location
+                                    var randomLocation = util.addDistanceToLatLng(playerPositionLat, playerPositionLong, Math.floor((Math.random() * gamevariable.spawnradius) + gamevariable.activeDistance), Math.floor((Math.random() * gamevariable.spawnradius) + gamevariable.activeDistance));
+
+                                    //create random destination
+                                    var randomDestination = util.addDistanceToLatLng(randomLocation.lat, randomLocation.lng, Math.floor((Math.random() * gamevariable.spawnradius) + gamevariable.activeDistance), Math.floor((Math.random() * gamevariable.spawnradius) + gamevariable.activeDistance));;
+
+                                    var flag = new Flag();
+                                    flag.owner = null;
+                                    flag.points = gamevariable.normalMPFlag;
+                                    flag.pos = {
+                                        "current": {
+                                            "lat": randomLocation.lat,
+                                            "long": randomLocation.lng
+                                        },
+                                        "destination": {
+                                            "lat": randomDestination.lat,
+                                            "long": randomDestination.lng
+                                        },
+                                        "origin": {
+                                            "lat": randomLocation.lat,
+                                            "long": randomLocation.lng
+                                        }
+                                    };
+
+                                    flag.save(function (err) {
+                                        if (err) {
+                                            return callback(false, err);
+                                        }
+                                        var result = []
+                                        result.push(flag);
+                                        return callback(true, result);
+                                    });
+                                }
+                                else
+                                {
+                                    return callback(false, "response status not included");
                                 }
                             }
                             else {
@@ -115,12 +168,10 @@ module.exports = {
             return callback(false, "missing lat and/or long");
         }
     }
-    ,
-
+    
     //pick up a multiplayer flag
-    /*pickupFlag: function (req, flagId, userID, callback) {
+    ,pickupFlag: function (req, userID, flagId, callback) {
         {
-            console.log("userID "+userID+" flagId "+flagId);
             Flag.update({ "_id": flagId  }, { "owner": userID }, function (err, result) {
                 if (err) {
                     return callback(false, err);
@@ -128,31 +179,17 @@ module.exports = {
                 return callback(true, 'Item updated in db');
             });
         }
-    }*/
-}
+    }
 
-/*
-{
-    "data": {
-        "__v": 0,
-        "_id": "5a3ccea5f0c0963c6888db19",
-        "owner": null,
-        "validUntil": 1514107052348,
-        "points": 100,
-        "pos": {
-            "current": {
-                "lat": 47.9628705,
-                "long": 16.4072215
-            },
-            "destination": {
-                "lat": 47.963355,
-                "long": 16.4105572
-            },
-            "origin": {
-                "lat": 47.9628705,
-                "long": 16.4072215
-            }
+    //drop a multiplayer flag
+    ,dropFlag: function (req, userID, flagId, callback) {
+        {
+            Flag.update({ "_id": flagId  }, { "owner": null }, function (err, result) {
+                if (err) {
+                    return callback(false, err);
+                }
+                return callback(true, 'Item updated in db');
+            });
         }
     }
 }
-*/

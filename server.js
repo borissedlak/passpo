@@ -357,27 +357,45 @@ app.get('/getMPFlag', function (req, res) {
 app.post('/pickupMPFlag', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
-
 			if (!req.body.flagId == null) {
 				return req.status(400).json({ error: "flagId Body missing" });
 			}
 			else {
 				var userID = valid._id;
 				var flagId = req.body.flagId;
-
-				/*multiplayer.pickupFlag(req, userID, flagId, function (valid2, msg2) {
+				multiplayer.pickupFlag(req, userID, flagId, function (valid2, msg2) {
 					if (valid2) {
 						return res.status(200).json({ data: msg2 });
 					}
 					else {
 						return res.status(500).json({ error: msg2 });
 					}
-				});*/
-				Flag.update({ "_id": flagId  }, { "owner": userID }, function (err, result) {
-					if (err) {
-						return res.status(500).send(err);
+				});
+			}
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});
+
+//pickup multiplayer flag -> sets owner for the flag
+app.post('/dropMPFlag', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			if (!req.body.flagId == null) {
+				return req.status(400).json({ error: "flagId Body missing" });
+			}
+			else {
+				var userID = valid._id;
+				var flagId = req.body.flagId;
+				multiplayer.dropFlag(req, userID, flagId, function (valid2, msg2) {
+					if (valid2) {
+						return res.status(200).json({ data: msg2 });
 					}
-					return res.status(200).json({ message: 'Item updated in db' });
+					else {
+						return res.status(500).json({ error: msg2 });
+					}
 				});
 			}
 		}
