@@ -157,8 +157,7 @@ app.post('/upload', function (req, res) {
 			imageFile.mv(`profile_pictures/${pictureID}.jpg`, function (err) {
 				if (err)
 					return res.status(500).send(err);
-
-				return res.status(200).send('u uploded lol');
+					return res.status(200).send('u uploded lol');
 			});
 		}
 	});
