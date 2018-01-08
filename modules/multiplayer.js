@@ -176,7 +176,7 @@ module.exports = {
                 if (err) {
                     return callback(false, err);
                 }
-                return callback(true, 'Item updated in db');
+                return callback(true, 'flag pickup');
             });
         }
     }
@@ -188,7 +188,7 @@ module.exports = {
                 if (err) {
                     return callback(false, err);
                 }
-                return callback(true, 'Item updated in db');
+                return callback(true, 'flag drop');
             });
         }
     }
