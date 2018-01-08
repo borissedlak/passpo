@@ -169,11 +169,9 @@ module.exports = {
         }
     }
     
-
     //pick up a multiplayer flag
-    /*,pickupFlag: function (req, flagId, userID, callback) {
+    ,pickupFlag: function (req, userID, flagId, callback) {
         {
-            console.log("userID "+userID+" flagId "+flagId);
             Flag.update({ "_id": flagId  }, { "owner": userID }, function (err, result) {
                 if (err) {
                     return callback(false, err);
@@ -181,5 +179,17 @@ module.exports = {
                 return callback(true, 'Item updated in db');
             });
         }
-    }*/
+    }
+
+    //drop a multiplayer flag
+    ,dropFlag: function (req, userID, flagId, callback) {
+        {
+            Flag.update({ "_id": flagId  }, { "owner": null }, function (err, result) {
+                if (err) {
+                    return callback(false, err);
+                }
+                return callback(true, 'Item updated in db');
+            });
+        }
+    }
 }
