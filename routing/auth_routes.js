@@ -47,9 +47,7 @@ module.exports = function (authRouter, passport) {
         })(req, res);
     });
 
-    authRouter.get('/facebook', passport.authenticate('facebook', { 
-        scope : ['email']
-      }));
+    authRouter.get('/facebook', passport.authenticate('facebook'));
 
     //If the passed credentials are invalid, the callback is never accessed!
     authRouter.get('/facebook/callback', function (req, res) {

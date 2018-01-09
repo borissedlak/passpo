@@ -8,7 +8,8 @@ module.exports = function (passport) {
 	passport.use(new FacebookStrategy({
 		clientID: config.consumer_key,
 		clientSecret: config.consumer_secret,
-		callbackURL: config.callback_url
+		callbackURL: config.callback_url,
+  		profileFields: ['email', 'first_name']
 	},
 		function (accessToken, refreshToken, profile, callback) {
 			process.nextTick(function () {
@@ -21,14 +22,15 @@ module.exports = function (passport) {
 							return callback(null, user, { status: 200, message: 'User found' });
 						}
 						else {
+							// Set the user properties that came from the POST data
 							var newUser = new User();
 
-							// Set the user properties that came from the POST data
 							newUser.facebook.facebookId = profile.id;
 							newUser.facebook.profileName = profile.displayName;
 							newUser.facebook.access_token = accessToken;
-							newUser.global.username = profile.displayName;
-							newUser.global.email = profile.displayName;
+							newUser.global.username = profile.name.givenName;
+							//Not 100% sure if this works when the user has only one email in the profile
+							newUser.global.email = profile.emails[0].value;
 							newUser.global.profilePicture = profile.picture;
 
 							// Save the user and check for errors
