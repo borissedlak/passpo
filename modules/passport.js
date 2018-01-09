@@ -9,7 +9,7 @@ module.exports = function (passport) {
 		clientID: config.consumer_key,
 		clientSecret: config.consumer_secret,
 		callbackURL: config.callback_url,
-  		profileFields: ['email', 'first_name']
+  		profileFields: ['email', 'first_name', 'picture']
 	},
 		function (accessToken, refreshToken, profile, callback) {
 			process.nextTick(function () {
@@ -31,7 +31,7 @@ module.exports = function (passport) {
 							newUser.global.username = profile.name.givenName;
 							//Not 100% sure if this works when the user has only one email in the profile
 							newUser.global.email = profile.emails[0].value;
-							newUser.global.profilePicture = profile.picture;
+							newUser.global.profilePicture = profile.photos[0].value;
 
 							// Save the user and check for errors
 							newUser.save(function (err) {
