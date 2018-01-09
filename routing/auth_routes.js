@@ -47,20 +47,19 @@ module.exports = function (authRouter, passport) {
         })(req, res);
     });
 
-    authRouter.get('/facebook', passport.authenticate('facebook'));
+    authRouter.get('/facebook', passport.authenticate('facebook', { 
+        scope : ['email']
+      }));
 
-
-    //Why is this not sent??
+    //If the passed credentials are invalid, the callback is never accessed!
     authRouter.get('/facebook/callback', function (req, res) {
         passport.authenticate('facebook', function (err, user, info) {
-            console.log('fb_auth 1');
             if (user) {
                 req.login(user, function (err) {
-                    if (err) { return res.status(500).json({ err: err }); }
-                    else{
-                        console.log(user);
+                    if (err)
+                        return res.status(500).json({ err: err });
+                    else
                         return res.status(info.status).json({ user: user, info: info });
-                    }
                 });
             }
             else

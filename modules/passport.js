@@ -1,6 +1,6 @@
 var LocalStrategy = require('passport-local').Strategy;
 var FacebookStrategy = require('passport-facebook').Strategy;
-var config = require('../config/config.json')
+var config = require('../config/config')
 var User = require('../models/user');
 
 module.exports = function (passport) {
@@ -16,9 +16,10 @@ module.exports = function (passport) {
 				User.findOne({ 'facebook.facebookId': profile.id },
 					function (err, user) {
 						if (err)
-							return callback(err, null, { status: 401, message: 'Email already registered' });
-						if (user)
+							return callback(err, null, { status: 500, message: 'Internal Error' });
+						if (user){
 							return callback(null, user, { status: 200, message: 'User found' });
+						}
 						else {
 							var newUser = new User();
 
@@ -27,13 +28,15 @@ module.exports = function (passport) {
 							newUser.facebook.profileName = profile.displayName;
 							newUser.facebook.access_token = accessToken;
 							newUser.global.username = profile.displayName;
+							newUser.global.email = profile.displayName;
 							newUser.global.profilePicture = profile.picture;
 
 							// Save the user and check for errors
 							newUser.save(function (err) {
 								if (err)
 									return callback(null, newUser, { status: 500, message: 'Couldnt insert user' });
-								return callback(null, newUser, { status: 201, message: 'New user inserted' });
+								else
+									return callback(null, newUser, { status: 201, message: 'New user inserted' });
 							});
 						}
 					}
