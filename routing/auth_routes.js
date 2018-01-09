@@ -47,13 +47,6 @@ module.exports = function (authRouter, passport) {
         })(req, res);
     });
 
-    /*loginUser: function ( request, callback ) {
-        request.login(user, function (err) {
-            if (err) { return next(err); }
-            return res.status(info.status).json({ user: req.user, info: info });
-        });
-    }*/
-
     authRouter.get('/facebook', passport.authenticate('facebook'));
 
     authRouter.get('/facebook/callback', function (req, res) {
