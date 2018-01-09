@@ -5,7 +5,6 @@ var bcrypt = require('bcrypt');
 // Define our user schema
 var UserSchema = new mongoose.Schema({
     local:{
-        email: String,
         password: String,
     },
     facebook: {
@@ -16,6 +15,7 @@ var UserSchema = new mongoose.Schema({
     },
     global:{
         username: String,
+        email: String,
         registrationDate: { type: Date, default: Date.now },
         profilePicture: String,
         score: { type: Number, default:0 }

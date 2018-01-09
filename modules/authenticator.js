@@ -55,7 +55,7 @@ module.exports = {
 
 				//The sent token represents the one we have stored in the db after validation
 				if (user.facebook.access_token == accessToken) {
-					console.log('facebook: 0');
+					console.log('facebook: quick authentication route');
 					return callback(user, 'Token matches saved token');
 				}
 				//Token does not represent the one in the db, we have to validate it again.
