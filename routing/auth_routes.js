@@ -49,11 +49,12 @@ module.exports = function (authRouter, passport) {
 
     authRouter.get('/facebook', passport.authenticate('facebook'));
 
+
+    //Why is this not sent??
     authRouter.get('/facebook/callback', function (req, res) {
-        console.log('fb_auth 1');
         passport.authenticate('facebook', function (err, user, info) {
+            console.log('fb_auth 1');
             if (user) {
-                console.log('fb_auth 2');
                 req.login(user, function (err) {
                     if (err) { return res.status(500).json({ err: err }); }
                     else{
