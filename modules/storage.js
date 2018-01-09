@@ -4,7 +4,7 @@ var connectionString;
 
 if(process.env.APP_CONFIG != null){
 	var config = JSON.parse(process.env.APP_CONFIG);
-	var mongoPassword = 'SuperSecure55#!';
+	var mongoPassword = 'HcAftPbye2';
 	connectionString = "mongodb://" + config.mongo.user + ":" + encodeURIComponent(mongoPassword) + "@" + config.mongo.hostString;
 }
 else{
