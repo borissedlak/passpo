@@ -47,26 +47,17 @@ module.exports = function (authRouter, passport) {
         })(req, res);
     });
 
-    /*loginUser: function ( request, callback ) {
-        request.login(user, function (err) {
-            if (err) { return next(err); }
-            return res.status(info.status).json({ user: req.user, info: info });
-        });
-    }*/
-
     authRouter.get('/facebook', passport.authenticate('facebook'));
 
+    //If the passed credentials are invalid, the callback is never accessed!
     authRouter.get('/facebook/callback', function (req, res) {
-        console.log('fb_auth 1');
         passport.authenticate('facebook', function (err, user, info) {
             if (user) {
-                console.log('fb_auth 2');
                 req.login(user, function (err) {
-                    if (err) { return res.status(500).json({ err: err }); }
-                    else{
-                        console.log(user);
+                    if (err)
+                        return res.status(500).json({ err: err });
+                    else
                         return res.status(info.status).json({ user: user, info: info });
-                    }
                 });
             }
             else
