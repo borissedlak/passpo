@@ -145,7 +145,7 @@ app.post('/points', function (req, res) {
 
 
 app.post('/upload', function (req, res) {
-	authenticator.isValidRequest(req, function (valid, msg) {
+	//authenticator.isValidRequest(req, function (valid, msg) {
 		// #1 Make sure the post request contains a valid facebook token
 		if (valid) {
 			if (!req.files)
@@ -160,7 +160,7 @@ app.post('/upload', function (req, res) {
 					return res.status(200).send('u uploded lol');
 			});
 		}
-	});
+	//});
 });
 
 app.post('/flag', function (req, res) {
