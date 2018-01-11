@@ -187,13 +187,37 @@ module.exports = {
                     return callback(false, err);
                 }
                 if (result) {
-                    //console.log(result);
                     Flag.update({ "_id": result._id }, { "owner": null }, function (err, result) {
                         if (err) {
                             return callback(false, err);
                         }
                         return callback(true, 'flag drop');
                     });
+                }
+                else{
+                    return callback(false, "not found");
+                }
+            });
+        }
+    }
+
+    //set current position for multiplayer flag
+    , setCurrentMPFlagPosition: function (req, userID, playerPositionLat, playerPositionLong, callback) {
+        {
+            Flag.findOne({ "owner": userID }, function (err, result) {
+                if (err) {
+                    return callback(false, err);
+                }
+                if (result) {
+                    Flag.update( { "owner": userID }, { "pos.current.lat": playerPositionLat , "pos.current.long": playerPositionLong } , function (err, result) {
+                        if (err) {
+                            return callback(false, err);
+                        }
+                        return callback(true, 'set current MPFlagPosition');
+                    });
+                }
+                else{
+                    return callback(false, "not found");
                 }
             });
         }
