@@ -3,6 +3,7 @@
 var express = require('express');
 var fileUpload = require('express-fileupload');
 var app = express();
+
 //CORS is about whether the express server allows requests from different servers.
 //https://stackoverflow.com/questions/7067966/how-to-allow-cors
 var cors = require('cors');
@@ -49,6 +50,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use(fileUpload());
+
 // ----------------------------------------<<
 
 
@@ -148,19 +150,22 @@ app.post('/upload', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		// #1 Make sure the post request contains a valid facebook token
 		if (valid) {
-			if (!req.files)
-				return res.status(400).send('Please choose a file first!' + req.files);
-
-			let imageFile = req.files.file;
-			let pictureID = valid._id;
-
-			imageFile.mv(`profile_pictures/${pictureID}.jpg`, function (err) {
-				if (err)
-					return res.status(500).send(err);
-					return res.status(200).send('u uploded lol');
-			});
-	//	}
-	//});
+			if (!req.body.imageFile){
+				return res.status(400).send('no files uploaded!');
+			} else {
+				let imageFile = req.body.imageFile;
+				let pictureID = valid._id;
+				return res.status(200).send('your file:'+ imageFile)
+				imageFile.mv(`profile_pictures/${pictureID}.jpg`, function (err) {
+					if (err){
+						return res.status(500).send(err);
+					} else {
+						return res.status(200).send('u uploded lol');
+					}
+				}); 
+			}
+		}
+	});
 });
 
 app.post('/flag', function (req, res) {
