@@ -147,8 +147,7 @@ module.exports = {
                                         return callback(true, result);
                                     });
                                 }
-                                else
-                                {
+                                else {
                                     return callback(false, "response status not included");
                                 }
                             }
@@ -168,27 +167,35 @@ module.exports = {
             return callback(false, "missing lat and/or long");
         }
     }
-    
+
     //pick up a multiplayer flag
-    ,pickupFlag: function (req, userID, flagId, callback) {
+    , pickupFlag: function (req, userID, flagId, callback) {
         {
-            Flag.update({ "_id": flagId  }, { "owner": userID }, function (err, result) {
+            Flag.updateOne({ "_id": flagId }, { "owner": userID }, function (err, result) {
                 if (err) {
                     return callback(false, err);
                 }
-                return callback(true, 'Item updated in db');
+                return callback(true, 'flag pickup');
             });
         }
     }
 
     //drop a multiplayer flag
-    ,dropFlag: function (req, userID, flagId, callback) {
+    , dropFlag: function (req, userID, callback) {
         {
-            Flag.update({ "_id": flagId  }, { "owner": null }, function (err, result) {
+            Flag.findOne({ "owner": userID }, function (err, result) {
                 if (err) {
                     return callback(false, err);
                 }
-                return callback(true, 'Item updated in db');
+                if (result) {
+                    console.log(result);
+                    Flag.update({ "_id": result._id }, { "owner": null }, function (err, result) {
+                        if (err) {
+                            return callback(false, err);
+                        }
+                        return callback(true, 'flag drop');
+                    });
+                }
             });
         }
     }

@@ -388,8 +388,9 @@ app.post('/dropMPFlag', function (req, res) {
 			}
 			else {
 				var userID = valid._id;
-				var flagId = req.body.flagId;
-				multiplayer.dropFlag(req, userID, flagId, function (valid2, msg2) {
+				/*var flagId = req.body.flagId;
+				console.log(flagId);*/
+				multiplayer.dropFlag(req, userID, function (valid2, msg2) {
 					if (valid2) {
 						return res.status(200).json({ data: msg2 });
 					}
