@@ -187,7 +187,7 @@ module.exports = {
                     return callback(false, err);
                 }
                 if (result) {
-                    console.log(result);
+                    //console.log(result);
                     Flag.update({ "_id": result._id }, { "owner": null }, function (err, result) {
                         if (err) {
                             return callback(false, err);
