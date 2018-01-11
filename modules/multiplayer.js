@@ -47,7 +47,6 @@ module.exports = {
                             radius: spawnradius
                             //TODO: type ?
                         }, function (err, response) {
-                            console.log("aaa" + response.json.status);
                             if (!err) {
                                 if (response.json.status == "OK") {   //found locations nearby 
                                     //save longitude and latitude in array
