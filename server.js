@@ -396,9 +396,34 @@ app.post('/dropMPFlag', function (req, res) {
 			}
 			else {
 				var userID = valid._id;
-				/*var flagId = req.body.flagId;
-				console.log(flagId);*/
 				multiplayer.dropFlag(req, userID, function (valid2, msg2) {
+					if (valid2) {
+						return res.status(200).json({ data: msg2 });
+					}
+					else {
+						return res.status(500).json({ error: msg2 });
+					}
+				});
+			}
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});
+
+
+app.post('/setCurrentMPFlagPosition', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			if ((!req.body.playerPositionLat == null) || (!req.body.playerPositionLong == null)) {
+				return req.status(400).json({ error: "playerPosition Body missing" });
+			}
+			else {
+				var userID = valid._id;
+				var playerPositionLat = req.body.playerPositionLat;
+				var playerPositionLong = req.body.playerPositionLong;
+				multiplayer.setCurrentMPFlagPosition(req, userID, playerPositionLat, playerPositionLong, function (valid2, msg2) {
 					if (valid2) {
 						return res.status(200).json({ data: msg2 });
 					}
