@@ -145,9 +145,9 @@ app.post('/points', function (req, res) {
 
 
 app.post('/upload', function (req, res) {
-	//authenticator.isValidRequest(req, function (valid, msg) {
+	authenticator.isValidRequest(req, function (valid, msg) {
 		// #1 Make sure the post request contains a valid facebook token
-	//	if (valid) {
+		if (valid) {
 			if (!req.files)
 				return res.status(400).send('Please choose a file first!' + req.files);
 
