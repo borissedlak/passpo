@@ -149,23 +149,32 @@ app.post('/upload', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		// #1 Make sure the post request contains a valid facebook token
 		if (valid) {
-			console.log(req.headers);
 			console.log(req.files);
-			if (!req.body.imageFile){
+			if (!req.files.profilePicture){
 				return res.status(400).send('Image file missing!');
 			} else {
-				let imageFile = req.body.imageFile;
+				let imageFile = req.files.profilePicture;
 				let pictureID = valid._id;
-				console.log(req.files);
-				imageFile.mv(`/profile_pictures/${pictureID}.jpg`, function (err) {
+
+				/*require("fs").writeFile(`./profile_pictures/${pictureID}.jpg`, req.files.profilePicture.data, 'base64', function(err) {
 					if (err){
-						console.log("couldn't move file");
+						console.log("couldn't move file", err);
 						return res.status(500).send(err);
 					} else {
 						console.log("moved file");
 						return res.status(201).send('Uploaded successfully');
 					}
-				}); 
+				});*/
+
+				imageFile.mv(`./profile_pictures/${pictureID}.jpg`, function (err) {
+					if (err){
+						console.log("couldn't move file", err);
+						return res.status(500).send(err);
+					} else {
+						console.log("moved file");
+						return res.status(201).send('Uploaded successfully');
+					}
+				});
 			}
 		}
 	});
