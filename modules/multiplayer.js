@@ -194,7 +194,7 @@ module.exports = {
                         return callback(true, 'flag drop');
                     });
                 }
-                else{
+                else {
                     return callback(false, "not found");
                 }
             });
@@ -209,16 +209,29 @@ module.exports = {
                     return callback(false, err);
                 }
                 if (result) {
-                    Flag.update( { "owner": userID }, { "pos.current.lat": playerPositionLat , "pos.current.long": playerPositionLong } , function (err, result) {
+                    Flag.update({ "owner": userID }, { "pos.current.lat": playerPositionLat, "pos.current.long": playerPositionLong }, function (err, result) {
                         if (err) {
                             return callback(false, err);
                         }
                         return callback(true, 'set current MPFlagPosition');
                     });
                 }
-                else{
+                else {
                     return callback(false, "not found");
                 }
+            });
+        }
+    },
+
+    //TODO
+    getPlayerFlag: function (req, userID, callback) {
+        {
+            Flag.findOne({ "owner": userID }, function (err, result) {
+                if (err) {
+                    return callback(false, err);
+                }
+                return callback(true, result);
+
             });
         }
     }
