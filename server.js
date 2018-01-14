@@ -1,7 +1,6 @@
 // ------------ BASIC INCLUDES ------------>>
 //var url = require('url');
 var express = require('express');
-var fileUpload = require('express-fileupload');
 var app = express();
 
 //CORS is about whether the express server allows requests from different servers.
@@ -48,7 +47,7 @@ app.use(passport.session());
 app.use(bodyParser.urlencoded({ extended: false }));
 //Without the correct setup body parser it is not possible to deserialize json bodies
 app.use(bodyParser.json());
-
+var fileUpload = require('express-fileupload');
 app.use(fileUpload());
 
 // ----------------------------------------<<
@@ -150,19 +149,32 @@ app.post('/upload', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		// #1 Make sure the post request contains a valid facebook token
 		if (valid) {
-			if (!req.body.imageFile){
-				return res.status(400).send('no files uploaded!');
+			console.log(req.files);
+			if (!req.files.profilePicture){
+				return res.status(400).send('Image file missing!');
 			} else {
-				let imageFile = req.body.imageFile;
+				let imageFile = req.files.profilePicture;
 				let pictureID = valid._id;
-				return res.status(200).send('your file:'+ imageFile)
-				imageFile.mv(`profile_pictures/${pictureID}.jpg`, function (err) {
+
+				/*require("fs").writeFile(`./profile_pictures/${pictureID}.jpg`, req.files.profilePicture.data, 'base64', function(err) {
 					if (err){
+						console.log("couldn't move file", err);
 						return res.status(500).send(err);
 					} else {
-						return res.status(200).send('u uploded lol');
+						console.log("moved file");
+						return res.status(201).send('Uploaded successfully');
 					}
-				}); 
+				});*/
+
+				imageFile.mv(`./profile_pictures/${pictureID}.jpg`, function (err) {
+					if (err){
+						console.log("couldn't move file", err);
+						return res.status(500).send(err);
+					} else {
+						console.log("moved file");
+						return res.status(201).send('Uploaded successfully');
+					}
+				});
 			}
 		}
 	});

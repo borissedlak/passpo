@@ -21,6 +21,7 @@
     "express": "^4.13.3",
     "express-fileupload": "^0.3.0",
     "express-session": "^1.15.6",
+    "fs": "0.0.1-security",
     "jsonwebtoken": "^8.1.0",
     "jwt-simple": "^0.5.1",
     "mongoose": "^4.10.8",
