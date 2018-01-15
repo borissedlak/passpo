@@ -1,8 +1,8 @@
 // ------------ BASIC INCLUDES ------------>>
 //var url = require('url');
 var express = require('express');
-var fileUpload = require('express-fileupload');
 var app = express();
+
 //CORS is about whether the express server allows requests from different servers.
 //https://stackoverflow.com/questions/7067966/how-to-allow-cors
 var cors = require('cors');
@@ -47,8 +47,9 @@ app.use(passport.session());
 app.use(bodyParser.urlencoded({ extended: false }));
 //Without the correct setup body parser it is not possible to deserialize json bodies
 app.use(bodyParser.json());
-
+var fileUpload = require('express-fileupload');
 app.use(fileUpload());
+
 // ----------------------------------------<<
 
 
@@ -148,17 +149,33 @@ app.post('/upload', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		// #1 Make sure the post request contains a valid facebook token
 		if (valid) {
-			if (!req.files)
-				return res.status(400).send('Please choose a file first!' + req.files);
+			console.log(req.files);
+			if (!req.files.profilePicture){
+				return res.status(400).send('Image file missing!');
+			} else {
+				let imageFile = req.files.profilePicture;
+				let pictureID = valid._id;
 
-			let imageFile = req.files.file;
-			let pictureID = valid._id;
+				/*require("fs").writeFile(`./profile_pictures/${pictureID}.jpg`, req.files.profilePicture.data, 'base64', function(err) {
+					if (err){
+						console.log("couldn't move file", err);
+						return res.status(500).send(err);
+					} else {
+						console.log("moved file");
+						return res.status(201).send('Uploaded successfully');
+					}
+				});*/
 
-			imageFile.mv(`profile_pictures/${pictureID}.jpg`, function (err) {
-				if (err)
-					return res.status(500).send(err);
-					return res.status(200).send('u uploded lol');
-			});
+				imageFile.mv(`./profile_pictures/${pictureID}.jpg`, function (err) {
+					if (err){
+						console.log("couldn't move file", err);
+						return res.status(500).send(err);
+					} else {
+						console.log("moved file");
+						return res.status(201).send('Uploaded successfully');
+					}
+				});
+			}
 		}
 	});
 });
@@ -388,9 +405,34 @@ app.post('/dropMPFlag', function (req, res) {
 			}
 			else {
 				var userID = valid._id;
-				/*var flagId = req.body.flagId;
-				console.log(flagId);*/
 				multiplayer.dropFlag(req, userID, function (valid2, msg2) {
+					if (valid2) {
+						return res.status(200).json({ data: msg2 });
+					}
+					else {
+						return res.status(500).json({ error: msg2 });
+					}
+				});
+			}
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});
+
+
+app.post('/setCurrentMPFlagPosition', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			if ((!req.body.playerPositionLat == null) || (!req.body.playerPositionLong == null)) {
+				return req.status(400).json({ error: "playerPosition Body missing" });
+			}
+			else {
+				var userID = valid._id;
+				var playerPositionLat = req.body.playerPositionLat;
+				var playerPositionLong = req.body.playerPositionLong;
+				multiplayer.setCurrentMPFlagPosition(req, userID, playerPositionLat, playerPositionLong, function (valid2, msg2) {
 					if (valid2) {
 						return res.status(200).json({ data: msg2 });
 					}
