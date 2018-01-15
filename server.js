@@ -1,7 +1,6 @@
 // ------------ BASIC INCLUDES ------------>>
 //var url = require('url');
 var express = require('express');
-var fileUpload = require('express-fileupload');
 var app = express();
 
 //CORS is about whether the express server allows requests from different servers.
@@ -14,6 +13,7 @@ var fs = require('fs');
 var mongoose = require('mongoose');
 var https = require('https');
 var passport = require('passport');
+var path = require('path');
 
 // ----------------------------------------<<
 
@@ -48,7 +48,7 @@ app.use(passport.session());
 app.use(bodyParser.urlencoded({ extended: false }));
 //Without the correct setup body parser it is not possible to deserialize json bodies
 app.use(bodyParser.json());
-
+var fileUpload = require('express-fileupload');
 app.use(fileUpload());
 
 // ----------------------------------------<<
@@ -150,23 +150,39 @@ app.post('/upload', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		// #1 Make sure the post request contains a valid facebook token
 		if (valid) {
-			if (!req.body.imageFile){
-				return res.status(400).send('no files uploaded!');
+			console.log(req.files);
+			if (!req.files.profilePicture){
+				return res.status(400).send('Image file missing!');
 			} else {
-				let imageFile = req.body.imageFile;
+				let imageFile = req.files.profilePicture;
 				let pictureID = valid._id;
-				return res.status(200).send('your file:'+ imageFile)
-				imageFile.mv(`profile_pictures/${pictureID}.jpg`, function (err) {
+
+				/*require("fs").writeFile(`./profile_pictures/${pictureID}.jpg`, req.files.profilePicture.data, 'base64', function(err) {
 					if (err){
+						console.log("couldn't move file", err);
 						return res.status(500).send(err);
 					} else {
-						return res.status(200).send('u uploded lol');
+						console.log("moved file");
+						return res.status(201).send('Uploaded successfully');
 					}
-				}); 
+				});*/
+
+				imageFile.mv(`./profile_pictures/${pictureID}.jpg`, function (err) {
+					if (err){
+						console.log("couldn't move file", err);
+						return res.status(500).send(err);
+						
+					} else {
+						console.log("moved file");
+						return res.status(201).send('Uploaded successfully');
+					}
+				});
 			}
 		}
 	});
 });
+
+
 
 app.post('/flag', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
@@ -259,6 +275,7 @@ app.post('/itemPickup', function (req, res) {
 	});
 });
 
+
 //Get whole inventory (all items) for user
 app.get('/inventory', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
@@ -317,6 +334,18 @@ app.get('/item/:id', function (req, res) {
 	});
 });
 
+//get profilepicture from profile_pictures folder///:user_id
+app.get('/profilepicture/:userid', function(req, res){
+	var userid = req.params.userid;
+		authenticator.isValidRequest(req, function(valid, msg){
+			if(valid){
+			res.sendFile(path.join(__dirname, './profile_pictures', `${userid}.jpg`))
+		} else {
+			return res.status(401).json({ error: msg });
+		}
+	})
+})
+
 //Get list of best x users
 app.get('/leaderboard', function (req, res) {
 	//If the client doesnt specify a number of users, the default is 30 			
@@ -343,12 +372,12 @@ app.get('/leaderboard', function (req, res) {
 app.get('/getMPFlag', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
-			multiplayer.getMPFlag(req, function (valid2, msg2) {
-				if (valid2) {
-					return res.status(200).json({ data: msg2 });
+			multiplayer.getMPFlag(req, function (success, results) {
+				if (success) {
+					return res.status(200).json({ data: results });
 				}
 				else {
-					return res.status(500).json({ error: msg2 });
+					return res.status(500).json({ error: results });
 				}
 			});
 		}
