@@ -223,17 +223,16 @@ module.exports = {
                 }
             });
         }
-    },
+    }
 
-    //TODO
-    getPlayerFlag: function (req, userID, callback) {
+    //get flag with owner = player
+    ,getPlayerFlag: function (req, userID, callback) {
         {
             Flag.findOne({ "owner": userID }, function (err, result) {
                 if (err) {
                     return callback(false, err);
                 }
                 return callback(true, result);
-
             });
         }
     }

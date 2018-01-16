@@ -421,7 +421,7 @@ app.post('/dropMPFlag', function (req, res) {
 	});
 });
 
-
+//set the flag to user current position
 app.post('/setCurrentMPFlagPosition', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
@@ -441,6 +441,39 @@ app.post('/setCurrentMPFlagPosition', function (req, res) {
 					}
 				});
 			}
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});
+
+//get multiplayer flag
+app.get('/getMPFlagId', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			var userID = valid._id;
+			multiplayer.getPlayerFlag(req, userID, function (success, results) {
+				if (success) {
+					return res.status(200).json({ data: results });
+				}
+				else {
+					return res.status(500).json({ error: results });
+				}
+			});
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});
+
+//get player id for frontend
+app.get('/getPlayerId', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			var userID = valid._id;
+			return res.status(200).json({ pId: valid._id });
 		}
 		else {
 			return res.status(401).json({ error: msg });
