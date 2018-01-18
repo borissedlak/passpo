@@ -151,7 +151,7 @@ app.post('/upload', function (req, res) {
 		// #1 Make sure the post request contains a valid facebook token
 		if (valid) {
 			console.log(req.files);
-			if (!req.files.profilePicture){
+			if (!req.files.profilePicture) {
 				return res.status(400).send('Image file missing!');
 			} else {
 				let imageFile = req.files.profilePicture;
@@ -167,13 +167,11 @@ app.post('/upload', function (req, res) {
 					}
 				});*/
 
-
-
-				img.mv(`./profile_pictures/${pictureID}.jpg`, function (err) {
-					if (err){
+				imageFile.mv(`./profile_pictures/${pictureID}.jpg`, function (err) {
+					if (err) {
 						console.log("couldn't move file", err);
 						return res.status(500).send(err);
-						
+
 					} else {
 						console.log("moved file");
 						return res.status(201).send('Uploaded successfully');
@@ -337,11 +335,11 @@ app.get('/item/:id', function (req, res) {
 });
 
 //get profilepicture from profile_pictures folder///:user_id
-app.get('/profilepicture/:userid', function(req, res){
+app.get('/profilepicture/:userid', function (req, res) {
 	var userid = req.params.userid;
-		authenticator.isValidRequest(req, function(valid, msg){
-			if(valid){
-		
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+
 			var imageFile = (path.join(__dirname, './profile_pictures', `${userid}.jpg`));
 			var img = new Buffer(imageFile, 'base64');
 
@@ -351,9 +349,9 @@ app.get('/profilepicture/:userid', function(req, res){
 			});
 
 			res.end(img);
-		
 
-		//res.sendFile(path.join(__dirname, './profile_pictures', `${userid}.jpg`))
+
+			//res.sendFile(path.join(__dirname, './profile_pictures', `${userid}.jpg`))
 		} else {
 			return res.status(401).json({ error: msg });
 		}
