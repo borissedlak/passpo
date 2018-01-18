@@ -146,44 +146,6 @@ app.post('/points', function (req, res) {
 });
 
 
-app.post('/upload', function (req, res) {
-	authenticator.isValidRequest(req, function (valid, msg) {
-		// #1 Make sure the post request contains a valid facebook token
-		if (valid) {
-			console.log(req.files);
-			if (!req.files.profilePicture) {
-				return res.status(400).send('Image file missing!');
-			} else {
-				let imageFile = req.files.profilePicture;
-				let pictureID = valid._id;
-
-				/*require("fs").writeFile(`./profile_pictures/${pictureID}.jpg`, req.files.profilePicture.data, 'base64', function(err) {
-					if (err){
-						console.log("couldn't move file", err);
-						return res.status(500).send(err);
-					} else {
-						console.log("moved file");
-						return res.status(201).send('Uploaded successfully');
-					}
-				});*/
-
-				imageFile.mv(`./profile_pictures/${pictureID}.jpg`, function (err) {
-					if (err) {
-						console.log("couldn't move file", err);
-						return res.status(500).send(err);
-
-					} else {
-						console.log("moved file");
-						return res.status(201).send('Uploaded successfully');
-					}
-				});
-			}
-		}
-	});
-});
-
-
-
 app.post('/flag', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		// #1 Make sure the post request contains a valid facebook token
@@ -334,10 +296,49 @@ app.get('/item/:id', function (req, res) {
 	});
 });
 
+
+app.post('/upload', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		// #1 Make sure the post request contains a valid facebook token
+		if (valid) {
+			console.log(req.files);
+			if (!req.files.profilePicture) {
+				return res.status(400).send('Image file missing!');
+			} else {
+				let imageFile = req.files.profilePicture;
+				let pictureID = valid._id;
+
+				/*require("fs").writeFile(`./profile_pictures/${pictureID}.jpg`, req.files.profilePicture.data, 'base64', function(err) {
+					if (err){
+						console.log("couldn't move file", err);
+						return res.status(500).send(err);
+					} else {
+						console.log("moved file");
+						return res.status(201).send('Uploaded successfully');
+					}
+				});*/
+
+				imageFile.mv(`./profile_pictures/${pictureID}.jpg`, function (err) {
+					if (err) {
+						console.log("couldn't move file", err);
+						return res.status(500).send(err);
+
+					} else {
+						console.log("moved file");
+						return res.status(201).send('Uploaded successfully');
+					}
+				});
+			}
+		}
+	});
+});
+
 //get profilepicture from profile_pictures folder///:user_id
 app.get('/profilepicture/:userid', function (req, res) {
 	var userid = req.params.userid;
-	authenticator.isValidRequest(req, function (valid, msg) {
+	return res.sendFile(path.join(__dirname, './profile_pictures', `${userid}.jpg`));
+
+	/*authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
 
 			var imageFile = (path.join(__dirname, './profile_pictures', `${userid}.jpg`));
@@ -355,7 +356,7 @@ app.get('/profilepicture/:userid', function (req, res) {
 		} else {
 			return res.status(401).json({ error: msg });
 		}
-	})
+	})*/
 })
 
 //Get list of best x users
