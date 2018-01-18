@@ -334,7 +334,7 @@ app.post('/upload', function (req, res) {
 });
 
 //get profilepicture from profile_pictures folder///:user_id
-app.get('/profilepicture/:userid', function (req, res) {
+app.get('/profilePicture/:userid', function (req, res) {
 	var userid = req.params.userid;
 	return res.sendFile(path.join(__dirname, './profile_pictures', `${userid}.jpg`));
 
