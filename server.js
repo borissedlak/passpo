@@ -167,7 +167,9 @@ app.post('/upload', function (req, res) {
 					}
 				});*/
 
-				imageFile.mv(`./profile_pictures/${pictureID}.jpg`, function (err) {
+
+
+				img.mv(`./profile_pictures/${pictureID}.jpg`, function (err) {
 					if (err){
 						console.log("couldn't move file", err);
 						return res.status(500).send(err);
@@ -339,7 +341,19 @@ app.get('/profilepicture/:userid', function(req, res){
 	var userid = req.params.userid;
 		authenticator.isValidRequest(req, function(valid, msg){
 			if(valid){
-			res.sendFile(path.join(__dirname, './profile_pictures', `${userid}.jpg`))
+		
+			var imageFile = (path.join(__dirname, './profile_pictures', `${userid}.jpg`));
+			var img = new Buffer(imageFile, 'base64');
+
+			res.writeHead(200, {
+				'Content-Type': 'image/jpg',
+				'Content-Length': img.length
+			});
+
+			res.end(img);
+		
+
+		//res.sendFile(path.join(__dirname, './profile_pictures', `${userid}.jpg`))
 		} else {
 			return res.status(401).json({ error: msg });
 		}
