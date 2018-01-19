@@ -103,6 +103,7 @@ module.exports = {
                                                 "long": flagResults[randomValue].lng
                                             }
                                         };
+                                        flag.hidden = null;
 
                                         flag.save(function (err) {
                                             if (err) {
@@ -137,6 +138,7 @@ module.exports = {
                                                 "long": randomLocation.lng
                                             }
                                         };
+
 
                                         flag.save(function (err) {
                                             if (err) {
@@ -226,12 +228,61 @@ module.exports = {
     }
 
     //get flag with owner = player
-    ,getPlayerFlag: function (req, userID, callback) {
+    , getPlayerFlag: function (req, userID, callback) {
         {
             Flag.findOne({ "owner": userID }, function (err, result) {
                 if (err) {
                     return callback(false, err);
                 }
+                return callback(true, result);
+            });
+        }
+    }
+
+    //activate the item magic hood
+    , activateItemHood: function (req, userID, callback) {
+        {
+            //find player flag
+            Flag.findOne({ "owner": userID }, function (err, result) {
+                if (err) {
+                    return callback(false, err);
+                }
+                if (result.hidden === null) {
+                    console.log("new");
+                    Flag.update({ "owner": userID }, { "hidden": Date.now() }, function (err, result) {
+                        if (err) {
+                            return callback(false, err);
+                        }
+                        return callback(true, 'set hidden to ' + Date.now());
+                    });
+                }
+                else {
+                    //check if 30 sec
+                    var firstTime = Date.parse(result.hidden);
+                    var active = new Date(firstTime + 15000);
+                    var cooldown = new Date(firstTime + 30000);
+                    if (Date.now() < active) {
+                        console.log("active");
+                    }
+                    else if(Date.now() < cooldown){
+                        console.log("cooldown");
+                    }
+                    else{
+                        console.log("give free");
+                        Flag.update({ "owner": userID }, { "hidden": null }, function (err, result) {
+                            if (err) {
+                                return callback(false, err);
+                            }
+                            return callback(true, 'set hidden to ');
+                        });
+                    }
+                    console.log("newTime" + cooldown);
+                    //newTime.setSeconds(newTime.getSeconds() + 30);
+                    //console.log("newTime2"+ newTime);
+
+                    console.log("nagut lets see" + result.hidden);
+                }
+
                 return callback(true, result);
             });
         }
