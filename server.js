@@ -337,7 +337,6 @@ app.get('/item/:id', function (req, res) {
 
 app.post('/upload', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
-		// #1 Make sure the post request contains a valid facebook token
 		if (valid) {
 			console.log(req.files);
 			if (!req.files.profilePicture) {
@@ -356,7 +355,7 @@ app.post('/upload', function (req, res) {
 					}
 				});*/
 
-				imageFile.mv(`./profile_pictures/${pictureID}.jpg`, function (err) {
+				imageFile.mv(`./profilePictures/${pictureID}.jpg`, function (err) {
 					if (err) {
 						console.log("couldn't move file", err);
 						return res.status(500).send(err);
@@ -371,10 +370,11 @@ app.post('/upload', function (req, res) {
 	});
 });
 
-//get profilepicture from profile_pictures folder///:user_id
 app.get('/profilePicture/:userid', function (req, res) {
+	//For reasons of simplicity the authentication for the profilePictures has been removed
+	//If it turns out that they should be protected, we need to secure them again
 	var userid = req.params.userid;
-	return res.sendFile(path.join(__dirname, './profile_pictures', `${userid}.jpg`));
+	return res.sendFile(path.join(__dirname, './profilePictures', `${userid}.jpg`));
 
 	/*authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
