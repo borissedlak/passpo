@@ -38,7 +38,7 @@ module.exports = {
                     function spawnFlags() {
                         if (flagResults.length >= 3) {
                             //return flag found in db
-                            console.log(flagResults.length + "flag from db");
+                            //console.log(flagResults.length + "flag from db");
                             return callback(true, flagResults);
                         }
                         else {
