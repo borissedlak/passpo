@@ -497,16 +497,3 @@ app.get('/getMPFlagId', function (req, res) {
 		}
 	});
 });
-
-//get player id for frontend
-app.get('/getPlayerId', function (req, res) {
-	authenticator.isValidRequest(req, function (valid, msg) {
-		if (valid) {
-			var userID = valid._id;
-			return res.status(200).json({ pId: valid._id });
-		}
-		else {
-			return res.status(401).json({ error: msg });
-		}
-	});
-});
