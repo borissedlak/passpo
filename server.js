@@ -167,7 +167,7 @@ app.post('/upload', function (req, res) {
 					}
 				});*/
 
-				imageFile.mv(`./profile_pictures/${pictureID}.jpg`, function (err) {
+				imageFile.mv(`./profilePictures/${pictureID}.jpg`, function (err) {
 					if (err) {
 						console.log("couldn't move file", err);
 						return res.status(500).send(err);
