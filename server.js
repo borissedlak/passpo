@@ -549,7 +549,7 @@ app.get('/getMPFlagId', function (req, res) {
 	});
 });
 */
-app.get('/activateHood', function (req, res) {
+app.post('/activateHood', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
 			var userID = valid._id;
