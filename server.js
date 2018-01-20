@@ -167,7 +167,7 @@ app.post('/upload', function (req, res) {
 					}
 				});*/
 
-				imageFile.mv(`./profile_pictures/${pictureID}.jpg`, function (err) {
+				imageFile.mv(`./profilePictures/${pictureID}.jpg`, function (err) {
 					if (err) {
 						console.log("couldn't move file", err);
 						return res.status(500).send(err);
@@ -587,11 +587,11 @@ app.post('/decrementItemHood', function (req, res) {
 	});
 });
 
-app.post('/ItemHoodActivation', function (req, res) {
+app.post('/itemHoodActivation', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
 			var userID = valid._id;
-			multiplayer.ItemHoodActivation(req, userID, function (success, results) {
+			multiplayer.itemHoodActivation(req, userID, function (success, results) {
 				if (success) {
 					return res.status(200).json({ data: results });
 				}

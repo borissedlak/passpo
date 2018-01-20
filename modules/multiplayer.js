@@ -281,7 +281,7 @@ module.exports = {
     }
     
     //check the hidden attribut and see in which it is state
-    , ItemHoodActivation: function (req, userID, callback) {
+    , itemHoodActivation: function (req, userID, callback) {
         {
             //find player flag
             Flag.findOne({ "owner": userID }, function (err, result) {
