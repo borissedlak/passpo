@@ -3,5 +3,9 @@
     "normalMPFlag" : 1000,
     "activeDistance" : 50,
     "maxLoops" : 3,
-    "maxSpawnDistance" : 1000
+    "maxSpawnDistance" : 1000,
+    "itemHood" : 1,
+    "itemMagnet" :2,
+    "hoodActive" : 15000,
+    "hoodCooldown" :30000
 }

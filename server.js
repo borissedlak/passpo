@@ -13,6 +13,7 @@ var fs = require('fs');
 var mongoose = require('mongoose');
 var https = require('https');
 var passport = require('passport');
+var path = require('path');
 
 // ----------------------------------------<<
 
@@ -150,7 +151,7 @@ app.post('/upload', function (req, res) {
 		// #1 Make sure the post request contains a valid facebook token
 		if (valid) {
 			console.log(req.files);
-			if (!req.files.profilePicture){
+			if (!req.files.profilePicture) {
 				return res.status(400).send('Image file missing!');
 			} else {
 				let imageFile = req.files.profilePicture;
@@ -167,9 +168,10 @@ app.post('/upload', function (req, res) {
 				});*/
 
 				imageFile.mv(`./profile_pictures/${pictureID}.jpg`, function (err) {
-					if (err){
+					if (err) {
 						console.log("couldn't move file", err);
 						return res.status(500).send(err);
+
 					} else {
 						console.log("moved file");
 						return res.status(201).send('Uploaded successfully');
@@ -179,6 +181,8 @@ app.post('/upload', function (req, res) {
 		}
 	});
 });
+
+
 
 app.post('/flag', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
@@ -271,6 +275,7 @@ app.post('/itemPickup', function (req, res) {
 	});
 });
 
+
 //Get whole inventory (all items) for user
 app.get('/inventory', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
@@ -329,6 +334,69 @@ app.get('/item/:id', function (req, res) {
 	});
 });
 
+
+app.post('/upload', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			console.log(req.files);
+			if (!req.files.profilePicture) {
+				return res.status(400).send('Image file missing!');
+			} else {
+				let imageFile = req.files.profilePicture;
+				let pictureID = valid._id;
+
+				/*require("fs").writeFile(`./profile_pictures/${pictureID}.jpg`, req.files.profilePicture.data, 'base64', function(err) {
+					if (err){
+						console.log("couldn't move file", err);
+						return res.status(500).send(err);
+					} else {
+						console.log("moved file");
+						return res.status(201).send('Uploaded successfully');
+					}
+				});*/
+
+				imageFile.mv(`./profilePictures/${pictureID}.jpg`, function (err) {
+					if (err) {
+						console.log("couldn't move file", err);
+						return res.status(500).send(err);
+
+					} else {
+						console.log("moved file");
+						return res.status(201).send('Uploaded successfully');
+					}
+				});
+			}
+		}
+	});
+});
+
+app.get('/profilePicture/:userid', function (req, res) {
+	//For reasons of simplicity the authentication for the profilePictures has been removed
+	//If it turns out that they should be protected, we need to secure them again
+	var userid = req.params.userid;
+	return res.sendFile(path.join(__dirname, './profilePictures', `${userid}.jpg`));
+
+	/*authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+
+			var imageFile = (path.join(__dirname, './profile_pictures', `${userid}.jpg`));
+			var img = new Buffer(imageFile, 'base64');
+
+			res.writeHead(200, {
+				'Content-Type': 'image/jpg',
+				'Content-Length': img.length
+			});
+
+			res.end(img);
+
+
+			//res.sendFile(path.join(__dirname, './profile_pictures', `${userid}.jpg`))
+		} else {
+			return res.status(401).json({ error: msg });
+		}
+	})*/
+})
+
 //Get list of best x users
 app.get('/leaderboard', function (req, res) {
 	//If the client doesnt specify a number of users, the default is 30 			
@@ -355,12 +423,12 @@ app.get('/leaderboard', function (req, res) {
 app.get('/getMPFlag', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
-			multiplayer.getMPFlag(req, function (valid2, msg2) {
-				if (valid2) {
-					return res.status(200).json({ data: msg2 });
+			multiplayer.getMPFlag(req, function (success, results) {
+				if (success) {
+					return res.status(200).json({ data: results });
 				}
 				else {
-					return res.status(500).json({ error: msg2 });
+					return res.status(500).json({ error: results });
 				}
 			});
 		}
@@ -421,7 +489,7 @@ app.post('/dropMPFlag', function (req, res) {
 	});
 });
 
-
+//set the flag to user current position
 app.post('/setCurrentMPFlagPosition', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
@@ -441,6 +509,96 @@ app.post('/setCurrentMPFlagPosition', function (req, res) {
 					}
 				});
 			}
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});
+
+//get multiplayer flag
+app.get('/getMPFlagId', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			var userID = valid._id;
+			multiplayer.getPlayerFlag(req, userID, function (success, results) {
+				if (success) {
+					return res.status(200).json({ data: results });
+				}
+				else {
+					return res.status(500).json({ error: results });
+				}
+			});
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});
+
+//get player id for frontend
+/*app.get('/getPlayerId', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			var userID = valid._id;
+			return res.status(200).json({ pId: valid._id });
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});
+*/
+app.post('/activateHood', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			var userID = valid._id;
+			multiplayer.activateItemHood(req, userID, function (success, results) {
+				if (success) {
+					return res.status(200).json({ data: results });
+				}
+				else {
+					return res.status(500).json({ error: results });
+				}
+			});
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});
+
+app.post('/decrementItemHood', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			var userID = valid._id;
+			multiplayer.decrementItemHood(req, userID, function (success, results) {
+				if (success) {
+					return res.status(200).json({ data: results });
+				}
+				else {
+					return res.status(500).json({ error: results });
+				}
+			});
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});
+
+app.post('/ItemHoodActivation', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			var userID = valid._id;
+			multiplayer.ItemHoodActivation(req, userID, function (success, results) {
+				if (success) {
+					return res.status(200).json({ data: results });
+				}
+				else {
+					return res.status(500).json({ error: results });
+				}
+			});
 		}
 		else {
 			return res.status(401).json({ error: msg });
