@@ -561,6 +561,53 @@ app.get('/activateHood', function (req, res) {
 					return res.status(500).json({ error: results });
 				}
 			});
+
+			/*multiplayer.decrementItemHood(req, userID, function (success, results) {
+				if (success) {
+					return res.status(200).json({ data: results });
+				}
+				else {
+					return res.status(500).json({ error: results });
+				}
+			});*/
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});
+/*
+app.post('/decrementItemHood', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			var userID = valid._id;
+			multiplayer.decrementItemHood(req, userID, function (success, results) {
+				if (success) {
+					return res.status(200).json({ data: results });
+				}
+				else {
+					return res.status(500).json({ error: results });
+				}
+			});
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});*/
+
+app.post('/ItemHoodActivation', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			var userID = valid._id;
+			multiplayer.ItemHoodActivation(req, userID, function (success, results) {
+				if (success) {
+					return res.status(200).json({ data: results });
+				}
+				else {
+					return res.status(500).json({ error: results });
+				}
+			});
 		}
 		else {
 			return res.status(401).json({ error: msg });

@@ -1,6 +1,8 @@
 // --------- CUSTOM INCLUDES--------------->>
 var config = require('../config/config.json');
 var gamevariable = require('../config/gamevariable.json');
+var ItemFunctions = require('../modules/item_func');
+var UserItem = require('../models/userItem');
 var Flag = require('../models/flag');
 var User = require('../models/user');
 var util = require('../modules/util');
@@ -239,7 +241,7 @@ module.exports = {
         }
     }
 
-    //activate the item magic hood
+    //activate the item magic hood (sets hidden attribut to now (timestamp))
     , activateItemHood: function (req, userID, callback) {
         {
             //find player flag
@@ -247,43 +249,78 @@ module.exports = {
                 if (err) {
                     return callback(false, err);
                 }
-                if (result.hidden === null) {
-                    console.log("new");
-                    Flag.update({ "owner": userID }, { "hidden": Date.now() }, function (err, result) {
-                        if (err) {
-                            return callback(false, err);
+                else {
+                    if (result) {
+                        if (!result.hidden || result.hidden == null) {
+                            console.log("activate item hood");
+                            Flag.update({ "owner": userID }, { "hidden": Date.now() }, function (err, result) {
+                                if (err) {
+                                    return callback(false, err);
+                                }
+                                return callback(true, 'hidden');
+                            });                            
                         }
-                        return callback(true, 'set hidden to ' + Date.now());
-                    });
+                        else{
+                            return callback(false, 'is already activated');
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    //reduze hood item by one
+    , decrementItemHood: function (req, userID, callback) {
+        var itemType = ItemFunctions.itemSwitchIn(String(gamevariable.itemHood));
+        UserItem.update({ "user": userID, "item": itemType }, { $inc: { "amount": -1 } }, function (err, result) {
+            if (err) {
+                return callback(false, err);
+            }
+            return callback(true, 'reduce hood item by one');
+        });
+    }
+    
+    //check the hidden attribut and see in which it is state
+    , ItemHoodActivation: function (req, userID, callback) {
+        {
+            //find player flag
+            Flag.findOne({ "owner": userID }, function (err, result) {
+                if (err) {
+                    return callback(false, err);
                 }
                 else {
-                    //check if 30 sec
-                    var firstTime = Date.parse(result.hidden);
-                    var active = new Date(firstTime + 15000);
-                    var cooldown = new Date(firstTime + 30000);
-                    if (Date.now() < active) {
-                        console.log("active");
-                    }
-                    else if(Date.now() < cooldown){
-                        console.log("cooldown");
+                    if (result) {
+                        if (!result.hidden || result.hidden == null) {
+                            return callback(false, "not activated");
+                        }
+                        else{
+                            //check if 30 sec
+                            var firstTime = Date.parse(result.hidden);
+                            var active = new Date(firstTime + gamevariable.hoodActive);
+                            var cooldown = new Date(firstTime + gamevariable.hoodCooldown);
+                            if (Date.now() < active) {
+                                //the user is for 15 sec hidden from other players
+                                return callback(true, "hidden");
+                            }
+                            else if (Date.now() < cooldown) {
+                                //after 15 sec the user can not use the magic hood again
+                                return callback(false, "cooldown");
+                            }
+                            else {
+                                //after 30 sec the user can use the magic hood again
+                                Flag.update({ "owner": userID }, { "hidden": null }, function (err, result) {
+                                    if (err) {
+                                        return callback(false, err);
+                                    }
+                                    return callback(false, 'set hidden to ');
+                                });
+                            }
+                        }
                     }
                     else{
-                        console.log("give free");
-                        Flag.update({ "owner": userID }, { "hidden": null }, function (err, result) {
-                            if (err) {
-                                return callback(false, err);
-                            }
-                            return callback(true, 'set hidden to ');
-                        });
+                        return callback(false, "no flag found");
                     }
-                    console.log("newTime" + cooldown);
-                    //newTime.setSeconds(newTime.getSeconds() + 30);
-                    //console.log("newTime2"+ newTime);
-
-                    console.log("nagut lets see" + result.hidden);
                 }
-
-                return callback(true, result);
             });
         }
     }
