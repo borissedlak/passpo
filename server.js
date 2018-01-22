@@ -167,7 +167,7 @@ app.post('/upload', function (req, res) {
 					}
 				});*/
 
-				imageFile.mv(`./profile_pictures/${pictureID}.jpg`, function (err) {
+				imageFile.mv(`./profilePictures/${pictureID}.jpg`, function (err) {
 					if (err) {
 						console.log("couldn't move file", err);
 						return res.status(500).send(err);
@@ -345,7 +345,7 @@ app.post('/upload', function (req, res) {
 				let imageFile = req.files.profilePicture;
 				let pictureID = valid._id;
 
-				/*require("fs").writeFile(`./profile_pictures/${pictureID}.jpg`, req.files.profilePicture.data, 'base64', function(err) {
+				require("fs").writeFile(`./profilePictures/${pictureID}`, new Buffer(imageFile, 'base64'), function(err) {
 					if (err){
 						console.log("couldn't move file", err);
 						return res.status(500).send(err);
@@ -353,9 +353,9 @@ app.post('/upload', function (req, res) {
 						console.log("moved file");
 						return res.status(201).send('Uploaded successfully');
 					}
-				});*/
+				});
 
-				imageFile.mv(`./profilePictures/${pictureID}.jpg`, function (err) {
+				/*imageFile.mv(`./profilePictures/${pictureID}.jpg`, function (err) {
 					if (err) {
 						console.log("couldn't move file", err);
 						return res.status(500).send(err);
@@ -364,7 +364,7 @@ app.post('/upload', function (req, res) {
 						console.log("moved file");
 						return res.status(201).send('Uploaded successfully');
 					}
-				});
+				});*/
 			}
 		}
 	});
