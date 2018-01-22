@@ -587,6 +587,25 @@ app.post('/decrementItemHood', function (req, res) {
 	});
 });
 
+app.post('/decrementItemMagnet', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			var userID = valid._id;
+			multiplayer.decrementItemMagnet(req, userID, function (success, results) {
+				if (success) {
+					return res.status(200).json({ data: results });
+				}
+				else {
+					return res.status(500).json({ error: results });
+				}
+			});
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});
+
 app.post('/itemHoodActivation', function (req, res) {
 	authenticator.isValidRequest(req, function (valid, msg) {
 		if (valid) {
