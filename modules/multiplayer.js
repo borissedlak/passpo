@@ -258,9 +258,9 @@ module.exports = {
                                     return callback(false, err);
                                 }
                                 return callback(true, 'hidden');
-                            });                            
+                            });
                         }
-                        else{
+                        else {
                             return callback(false, 'is already activated');
                         }
                     }
@@ -279,7 +279,18 @@ module.exports = {
             return callback(true, 'reduce hood item by one');
         });
     }
-    
+
+    //reduze Magnet item by one
+    , decrementItemMagnet: function (req, userID, callback) {
+        var itemType = ItemFunctions.itemSwitchIn(String(gamevariable.itemMagnet));
+        UserItem.update({ "user": userID, "item": itemType }, { $inc: { "amount": -1 } }, function (err, result) {
+            if (err) {
+                return callback(false, err);
+            }
+            return callback(true, 'reduce magnet item by one');
+        });
+    }
+
     //check the hidden attribut and see in which it is state
     , itemHoodActivation: function (req, userID, callback) {
         {
@@ -293,7 +304,7 @@ module.exports = {
                         if (!result.hidden || result.hidden == null) {
                             return callback(false, "not activated");
                         }
-                        else{
+                        else {
                             //check if 30 sec
                             var firstTime = Date.parse(result.hidden);
                             var active = new Date(firstTime + gamevariable.hoodActive);
@@ -317,7 +328,7 @@ module.exports = {
                             }
                         }
                     }
-                    else{
+                    else {
                         return callback(false, "no flag found");
                     }
                 }
