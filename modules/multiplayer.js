@@ -302,7 +302,7 @@ module.exports = {
                 else {
                     if (result) {
                         if (!result.hidden || result.hidden == null) {
-                            return callback(false, "not activated");
+                            return callback(true, "not activated");
                         }
                         else {
                             //check if 30 sec
@@ -315,7 +315,7 @@ module.exports = {
                             }
                             else if (Date.now() < cooldown) {
                                 //after 15 sec the user can not use the magic hood again
-                                return callback(false, "cooldown");
+                                return callback(true, "cooldown");
                             }
                             else {
                                 //after 30 sec the user can use the magic hood again
@@ -323,13 +323,13 @@ module.exports = {
                                     if (err) {
                                         return callback(false, err);
                                     }
-                                    return callback(false, 'set hidden to ');
+                                    return callback(true, 'set hidden to ');
                                 });
                             }
                         }
                     }
                     else {
-                        return callback(false, "no flag found");
+                        return callback(true, "no flag found");
                     }
                 }
             });
