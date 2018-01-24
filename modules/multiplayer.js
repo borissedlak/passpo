@@ -335,4 +335,27 @@ module.exports = {
             });
         }
     }
+
+
+    //delete flag
+    , flagToDestination: function (req, userID, callback) {
+        Flag.findOne({ "owner": userID }, function (err, result) {
+            if (err) {
+                return callback(false, err);
+            }
+            else {
+                if (result) {
+                    Flag.remove({ "owner": userID }, function (err, result) {
+                        if (err) {
+                            return callback(false, err);
+                        }
+                        return callback(true, 'delte flag');
+                    });
+                }
+                else {
+                    return callback(false, 'not found');
+                }
+            }
+        });
+    }
 }
