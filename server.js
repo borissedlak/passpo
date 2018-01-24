@@ -375,26 +375,7 @@ app.get('/profilePicture/:userid', function (req, res) {
 	//If it turns out that they should be protected, we need to secure them again
 	var userid = req.params.userid;
 	return res.sendFile(path.join(__dirname, './profilePictures', `${userid}.jpg`));
-
-	/*authenticator.isValidRequest(req, function (valid, msg) {
-		if (valid) {
-
-			var imageFile = (path.join(__dirname, './profile_pictures', `${userid}.jpg`));
-			var img = new Buffer(imageFile, 'base64');
-
-			res.writeHead(200, {
-				'Content-Type': 'image/jpg',
-				'Content-Length': img.length
-			});
-
-			res.end(img);
-
-
-			//res.sendFile(path.join(__dirname, './profile_pictures', `${userid}.jpg`))
-		} else {
-			return res.status(401).json({ error: msg });
-		}
-	})*/
+	
 })
 
 //Get list of best x users
@@ -611,6 +592,25 @@ app.post('/itemHoodActivation', function (req, res) {
 		if (valid) {
 			var userID = valid._id;
 			multiplayer.itemHoodActivation(req, userID, function (success, results) {
+				if (success) {
+					return res.status(200).json({ data: results });
+				}
+				else {
+					return res.status(500).json({ error: results });
+				}
+			});
+		}
+		else {
+			return res.status(401).json({ error: msg });
+		}
+	});
+});
+
+app.post('/flagToDestination', function (req, res) {
+	authenticator.isValidRequest(req, function (valid, msg) {
+		if (valid) {
+			var userID = valid._id;
+			multiplayer.flagToDestination(req, userID, function (success, results) {
 				if (success) {
 					return res.status(200).json({ data: results });
 				}
