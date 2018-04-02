@@ -1,4 +1,5 @@
 var jwt = require('jwt-simple');
+var util = require('../modules/util')
 var config = require('../config/config.json');
 
 module.exports = function (authRouter, passport) {
@@ -9,6 +10,9 @@ module.exports = function (authRouter, passport) {
     //successful: redirect to main page, respond with status code 200
     //unsuccessful: stay on login site, display error message, respond with status code 401
     authRouter.post('/login', function (req, res) {
+        if(util.isNullOrEmpty(req.body.username) || util.isNullOrEmpty(req.body.password)){
+            return res.status(400).json({ user: null, info: 'Login request must contain username and password in body' });
+        }
         passport.authenticate('local-login', function (err, user, info) {
             if (user) {
                 req.login(user, function (err) {
@@ -30,6 +34,9 @@ module.exports = function (authRouter, passport) {
     //successful: redirect to login page, respond with status code 200
     //unsuccessful: stay on registration site, display error message, respond with status code 400|401
     authRouter.post('/signup', function (req, res) {
+        if(util.isNullOrEmpty(req.body.username) || util.isNullOrEmpty(req.body.password)){
+            return res.status(400).json({ user: null, info: 'Signup request must contain username and password in body' });
+        }
         passport.authenticate('local-signup', function (err, user, info) {
             if (user) {
                 req.login(user, function (err) {
@@ -42,8 +49,9 @@ module.exports = function (authRouter, passport) {
                     }
                 });
             }
-            else
+            else{
                 return res.status(info.status).json({ user: req.user, info: info });
+            }
             //Notice that when you pass parameters to a deeper function you have to include the reference at the end as below
         })(req, res);
     });

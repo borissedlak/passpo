@@ -13,7 +13,6 @@ module.exports = function (passport) {
 	},
 		function (accessToken, refreshToken, profile, callback) {
 			process.nextTick(function () {
-				console.log(profile);
 				User.findOne({ 'facebook.facebookId': profile.id },
 					function (err, user) {
 						if (err)
@@ -56,17 +55,18 @@ module.exports = function (passport) {
 	passport.use('local-signup', new LocalStrategy({
 		passReqToCallback: true // allows us to pass back the entire request to the callback
 	},
+		//username & password here are shortcuts for req.body.*
 		function (req, username, password, done) {
 			// asynchronous
 			// User.findOne wont fire unless data is sent back
 			process.nextTick(function () {
-
 				// find a user whose name is the same as the forms username
 				// we are checking to see if the user is trying to signup again
 				User.findOne({ 'global.username': username }, function (err, user) {
 					// if there are any errors, return the error
-					if (err)
+					if (err){
 						return done(null, null, { status: 500, message: 'Error accessing user db' });
+					}
 
 					// check to see if theres already a user with that username
 					if (user) {
@@ -78,7 +78,7 @@ module.exports = function (passport) {
 
 						// set the user's local credentials
 						newUser.global.username = username;
-						newUser.global.email = req.body.email;
+						//newUser.global.email = req.body.email;
 						newUser.local.password = newUser.generateHash(password);
 
 						// save the user
