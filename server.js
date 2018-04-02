@@ -1,4 +1,4 @@
-// ------------ BASIC INCLUDES ------------>>
+// ------------- BASIC INCLUDES ------------->>
 //var url = require('url');
 var express = require('express');
 var app = express();
@@ -15,19 +15,33 @@ var https = require('https');
 var passport = require('passport');
 var path = require('path');
 
-// ----------------------------------------<<
+// ------------------------------------------<<
 
+// ------------ SECUTIY INCLUDES ------------>>
+/*var session = require('express-session');
+var csrf = require('csurf');
+
+app.use(session({
+	secret: 'My super session secret',
+	cookie: {
+		httpOnly: true,
+		secure: true
+	}
+}));
+
+app.use(csrf());
+
+app.use(function (req, res, next) {
+	res.locals._csrf = req.csrfToken();
+	next();
+});*/
+// ----------------------------------------<<
 
 // --------- CUSTOM INCLUDES--------------->>
 var authenticator = require('./modules/authenticator');
 var storage = require('./modules/storage');
 var User = require('./models/user');
-var Flag = require('./models/flag');
-var Item = require('./models/item');
-var UserItem = require('./models/userItem');
-var ItemFunctions = require('./modules/item_func');
 var util = require('./modules/util');
-var multiplayer = require('./modules/multiplayer');
 var config = require('./config/config.json');
 require('./modules/passport')(passport); // pass passport for configuration
 // ----------------------------------------<<
@@ -345,8 +359,8 @@ app.post('/upload', function (req, res) {
 				let imageFile = req.files.profilePicture;
 				let pictureID = valid._id;
 
-				require("fs").writeFile(`./profilePictures/${pictureID}`, new Buffer(imageFile, 'base64'), function(err) {
-					if (err){
+				require("fs").writeFile(`./profilePictures/${pictureID}`, new Buffer(imageFile, 'base64'), function (err) {
+					if (err) {
 						console.log("couldn't move file", err);
 						return res.status(500).send(err);
 					} else {
@@ -375,7 +389,7 @@ app.get('/profilePicture/:userid', function (req, res) {
 	//If it turns out that they should be protected, we need to secure them again
 	var userid = req.params.userid;
 	return res.sendFile(path.join(__dirname, './profilePictures', `${userid}.jpg`));
-	
+
 })
 
 //Get list of best x users
