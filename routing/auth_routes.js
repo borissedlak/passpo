@@ -33,7 +33,8 @@ module.exports = function (authRouter, passport) {
         passport.authenticate('local-signup', function (err, user, info) {
             if (user) {
                 req.login(user, function (err) {
-                    if (err) { return res.status(500).json({ err: err }); }
+                    if (err)
+                        return res.status(500).json({ err: err }); 
                     else{
                         var payload = { id: req.user._id };
                         var token = jwt.encode(payload, config.jwt_secret);

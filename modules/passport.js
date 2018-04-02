@@ -9,7 +9,7 @@ module.exports = function (passport) {
 		clientID: config.consumer_key,
 		clientSecret: config.consumer_secret,
 		callbackURL: config.callback_url,
-  		profileFields: ['email', 'first_name', 'picture']
+		profileFields: ['email', 'first_name', 'picture']
 	},
 		function (accessToken, refreshToken, profile, callback) {
 			process.nextTick(function () {
@@ -18,7 +18,7 @@ module.exports = function (passport) {
 					function (err, user) {
 						if (err)
 							return callback(err, null, { status: 500, message: 'Internal Error' });
-						if (user){
+						if (user) {
 							return callback(null, user, { status: 200, message: 'User found' });
 						}
 						else {

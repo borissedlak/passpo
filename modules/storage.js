@@ -2,17 +2,16 @@ var User = require('../models/user');
 var mongoose = require('mongoose');
 var connectionString;
 
-if(process.env.APP_CONFIG != null){
+/*if(process.env.APP_CONFIG != null){
 	var config = JSON.parse(process.env.APP_CONFIG);
 	var mongoPassword = 'HcAftPbye2';
 	connectionString = "mongodb://" + config.mongo.user + ":" + encodeURIComponent(mongoPassword) + "@" + config.mongo.hostString;
 }
-else{
-	connectionString = 'mongodb://Basta55:HcAftPbye2@ds121575.mlab.com:21575/api';
-}
+else{*/
+	connectionString = 'mongodb://Hajibaba:abcd1234@ds036178.mlab.com:36178/passpo';
+//}
 
 module.exports = {
-	// Do I need the connection anyhow?
     connect: function () {
 		mongoose.connect(connectionString)
 	},
