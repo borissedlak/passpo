@@ -1,6 +1,6 @@
 // Load required packages
 var mongoose = require('mongoose');
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcryptjs');
 
 // Define our user schema
 var UserSchema = new mongoose.Schema({
