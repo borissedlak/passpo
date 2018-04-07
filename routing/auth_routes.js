@@ -1,6 +1,7 @@
 var jwt = require('jwt-simple');
 var util = require('../modules/util')
 var config = require('../config/config.json');
+const status_codes = config.http_status_codes;
 
 module.exports = function (authRouter, passport) {
 
@@ -11,21 +12,23 @@ module.exports = function (authRouter, passport) {
     //unsuccessful: stay on login site, display error message, respond with status code 401
     authRouter.post('/login', function (req, res) {
         if(util.isNullOrEmpty(req.body.username) || util.isNullOrEmpty(req.body.password)){
-            return res.status(400).json({ user: null, info: 'Login request must contain username and password in body' });
+            return res.status(status_codes.bad_request).json({ info: 'Login request must contain username and password in body' });
         }
         passport.authenticate('local-login', function (err, user, info) {
             if (user) {
                 req.login(user, function (err) {
-                    if (err) { return res.status(500).json({ err: err }); }
+                    if (err) {
+                        return res.status(status_codes.server_error).json({ err: err }); 
+                    }
                     else{
                         var payload = {id: req.user._id};
                         var token = jwt.encode(payload, config.jwt_secret);
-                        return res.status(info.status).json({ user: user, info: info, token: token });
+                        return res.status(info.status).json({ user: user, info: info.message, token: token });
                     }
                 });
             }
             else
-                return res.status(info.status).json({ user: req.user, info: info });
+                return res.status(info.status).json({ info: info.message });
 
         })(req, res);
     });
@@ -35,22 +38,22 @@ module.exports = function (authRouter, passport) {
     //unsuccessful: stay on registration site, display error message, respond with status code 400|401
     authRouter.post('/signup', function (req, res) {
         if(util.isNullOrEmpty(req.body.username) || util.isNullOrEmpty(req.body.password)){
-            return res.status(400).json({ user: null, info: 'Signup request must contain username and password in body' });
+            return res.status(status_codes.bad_request).json({ info: 'Signup request must contain username and password in body' });
         }
         passport.authenticate('local-signup', function (err, user, info) {
             if (user) {
                 req.login(user, function (err) {
                     if (err)
-                        return res.status(500).json({ err: err }); 
+                        return res.status(status_codes.server_error).json({ err: err }); 
                     else{
                         var payload = { id: req.user._id };
                         var token = jwt.encode(payload, config.jwt_secret);
-                        return res.status(info.status).json({ user: user, info: info, token: token });
+                        return res.status(info.status).json({ user: user, info: info.message, token: token });
                     }
                 });
             }
             else{
-                return res.status(info.status).json({ user: req.user, info: info });
+                return res.status(info.status).json({ info: info.message });
             }
             //Notice that when you pass parameters to a deeper function you have to include the reference at the end as below
         })(req, res);
@@ -64,13 +67,13 @@ module.exports = function (authRouter, passport) {
             if (user) {
                 req.login(user, function (err) {
                     if (err)
-                        return res.status(500).json({ err: err });
+                        return res.status(status_codes.server_error).json({ err: err });
                     else
-                        return res.status(info.status).json({ user: user, info: info });
+                        return res.status(info.status).json({ user: user, info: info.message });
                 });
             }
             else
-                return res.status(info.status).json({ user: req.user, info: info });
+                return res.status(info.status).json({ info: info.message });
         })(req, res)
     });
 }

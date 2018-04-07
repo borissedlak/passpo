@@ -40,7 +40,6 @@ app.use(function (req, res, next) {
 // --------- CUSTOM INCLUDES--------------->>
 var authenticator = require('./modules/authenticator');
 var storage = require('./modules/storage');
-var User = require('./models/user');
 var util = require('./modules/util');
 var config = require('./config/config.json');
 require('./modules/passport')(passport); // pass passport for configuration
@@ -58,7 +57,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 //Morgan prints all HTTP Requests into the CLI - maybe use this for debug reasons
 //app.use(require('morgan')('combined'));
-//parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 //Without the correct setup body parser it is not possible to deserialize json bodies
 app.use(bodyParser.json());
@@ -70,9 +68,11 @@ app.use(fileUpload());
 
 // ---------- ROUTING --------------------->>
 var authRouter = express.Router();
+var apiRouter = express.Router();
 require('./routing/auth_routes')(authRouter, passport);
-//Must be below the complete passport setup for some reason
+require('./routing/api_routes')(apiRouter, authenticator);
 app.use('/auth', authRouter);
+app.use('/api', apiRouter);
 
 //HTTPS forcing
 /*var httpsOptions = {
@@ -86,37 +86,6 @@ https.all('*', function(req, res) {
 });*/
 // ----------------------------------------<<
 
-
-app.get('/', function (req, res) {
-
-	// IDEA: I get the Id from the debug_token function, so may I use it from there instead of the param
-	// --> Every request is handles as if the user is in the db
-
-	authenticator.isValidRequest(req, function (valid, msg) {
-		if (valid) {
-			return res.status(200).json({ data: msg });
-		}
-		else {
-			return res.status(401).json({ error: msg });
-		}
-	});
-});
-
-app.get('/user', function (req, res) {
-	authenticator.isValidRequest(req, function (valid, msg) {
-		if (valid) {
-			User.find(function (err, data) {
-				if (err) {
-					return res.status(500).json(error);
-				}
-				res.status(200).json(data);
-			});
-		}
-		else {
-			return res.status(401).json({ error: msg });
-		}
-	});
-});
 
 // Serve static files in public directory
 app.use(express.static(__dirname + '/public'));

@@ -10,20 +10,18 @@ var UserSchema = new mongoose.Schema({
     facebook: {
         facebookId: Number,
         profileName: String,
-        access_token: String,
+        // access_token: String,
         email: String
     },
     global:{
         username: String,
         email: String,
-        registrationDate: { type: Date, default: Date.now },
-        profilePicture: String,
-        score: { type: Number, default:0 }
+        registrationDate: { type: Date, default: Date.now }
     }
 });
 
 UserSchema.methods.generateHash = function(password) {
-    return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+    return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 };
 
 UserSchema.methods.validPassword = function(password) {

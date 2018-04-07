@@ -1,6 +1,7 @@
 var LocalStrategy = require('passport-local').Strategy;
 var FacebookStrategy = require('passport-facebook').Strategy;
 var config = require('../config/config')
+const status_codes = config.http_status_codes;
 var User = require('../models/user');
 
 module.exports = function (passport) {
@@ -16,28 +17,27 @@ module.exports = function (passport) {
 				User.findOne({ 'facebook.facebookId': profile.id },
 					function (err, user) {
 						if (err)
-							return callback(err, null, { status: 500, message: 'Internal Error' });
+							return callback(err, null, { status: status_codes.server_error, message: 'Internal Error' });
 						if (user) {
-							return callback(null, user, { status: 200, message: 'User found' });
+							return callback(null, user, { status: status_codes.success, message: 'User found' });
 						}
 						else {
 							// Set the user properties that came from the POST data
 							var newUser = new User();
-
+							console.log(profile);
 							newUser.facebook.facebookId = profile.id;
-							newUser.facebook.profileName = profile.displayName;
-							newUser.facebook.access_token = accessToken;
-							newUser.global.username = profile.name.givenName;
-							//Not 100% sure if this works when the user has only one email in the profile
+							// newUser.facebook.profileName = profile.displayName;
+							// newUser.facebook.access_token = accessToken;
+							// newUser.global.username = profile.name.givenName;
 							newUser.global.email = profile.emails[0].value;
-							newUser.global.profilePicture = profile.photos[0].value;
+							// newUser.global.profilePicture = profile.photos[0].value;
 
 							// Save the user and check for errors
 							newUser.save(function (err) {
 								if (err)
-									return callback(null, newUser, { status: 500, message: 'Couldnt insert user' });
+									return callback(err, newUser, { status: status_codes.server_error, message: 'Couldnt insert user' });
 								else
-									return callback(null, newUser, { status: 201, message: 'New user inserted' });
+									return callback(null, newUser, { status: status_codes.created, message: 'New user inserted' });
 							});
 						}
 					}
@@ -63,14 +63,13 @@ module.exports = function (passport) {
 				// find a user whose name is the same as the forms username
 				// we are checking to see if the user is trying to signup again
 				User.findOne({ 'global.username': username }, function (err, user) {
-					// if there are any errors, return the error
-					if (err){
-						return done(null, null, { status: 500, message: 'Error accessing user db' });
-					}
 
+					if (err) {
+						return done(err, null, { status: status_codes.server_error, message: 'Error accessing user db' });
+					}
 					// check to see if theres already a user with that username
 					if (user) {
-						return done(null, null, { status: 401, message: 'Username already registered' });
+						return done(user, null, { status: status_codes.bad_request, message: 'Username already registered' });
 					}
 					else {
 						// create the user
@@ -83,9 +82,10 @@ module.exports = function (passport) {
 
 						// save the user
 						newUser.save(function (err) {
-							if (err)
-								throw err;
-							return done(null, newUser, { status: 200, message: 'User created' });
+							if (err) {
+								return done(err, newUser, { status: status_codes.server_error, message: 'Error storing user in db' });
+							}
+							return done(null, newUser, { status: status_codes.created, message: 'User created' });
 						});
 					}
 
@@ -110,18 +110,18 @@ module.exports = function (passport) {
 			User.findOne({ 'global.username': username }, function (err, user) {
 				// if there are any errors, return the error before anything else
 				if (err)
-					return done(err, false, { status: 500, message: 'Error accessing user db' });
+					return done(err, null, { status: status_codes.server_error, message: 'Error accessing user db' });
 
 				// if no user is found, return the message
 				if (!user)
-					return done(null, false, { status: 401, message: 'No user with this name found.' });
+					return done(null, null, { status: status_codes.bad_request, message: 'No user with this name found.' });
 
 				// if the user is found but the password is wrong
 				if (!user.validPassword(password))
-					return done(null, false, { status: 401, message: 'Wrong password' });
+					return done(null, null, { status: status_codes.bad_request, message: 'Wrong password' });
 
 				// all is well, return successful user
-				return done(null, user, { status: 200, message: 'Logged in' });
+				return done(null, user, { status: status_codes.success, message: 'Logged in' });
 			});
 
 		}));
