@@ -1,10 +1,10 @@
 {
-  "name": "flag-api",
+  "name": "Passpo",
   "version": "1.0.0",
   "config": {
     "port": "8080"
   },
-  "description": "An application for leaving notes on Twitter friends and followers",
+  "description": "An authentication application built in the context of a bachelor thesis",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
