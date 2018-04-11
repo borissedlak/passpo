@@ -69,7 +69,7 @@ module.exports = function (passport) {
 					}
 					// check to see if theres already a user with that username
 					if (user) {
-						return done(user, null, { status: status_codes.bad_request, message: 'Username already registered' });
+						return done(null, null, { status: status_codes.bad_request, message: 'Username already registered' });
 					}
 					else {
 						// create the user

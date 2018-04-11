@@ -53,6 +53,7 @@ module.exports = function (authRouter, passport) {
                 });
             }
             else{
+                console.log(info);
                 return res.status(info.status).json({ info: info.message });
             }
             //Notice that when you pass parameters to a deeper function you have to include the reference at the end as below
