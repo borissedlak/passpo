@@ -25,12 +25,12 @@ module.exports = {
 		if (util.isNullOrEmpty(access_token)) {
 			return callback(false, 'Access token missing');
 		}
-		if (util.isNullOrEmpty(user)) {
-			return callback(false, 'User object missing');
-		}
-		if (util.isNullOrEmpty(strategy)) {
-			return callback(false, 'Specify authentication strategy eg. facebook or local');
-		}
+		// if (util.isNullOrEmpty(user)) {
+		// 	return callback(false, 'User object missing');
+		// }
+		// if (util.isNullOrEmpty(strategy)) {
+		// 	return callback(false, 'Specify authentication strategy eg. facebook or local');
+		// }
 
 		// This may not be a good idea according to below, but it is necessary
 		// https://stackoverflow.com/questions/39992774/verify-a-jwt-token-string-containing-bearer-with-nodejs
@@ -69,20 +69,11 @@ module.exports = {
 				break;
 
 			case 'local':
-				//catch error if not decodeable
-				// try {
-				var userID = user._id;
-				// }
-				// catch (error) { console.log("error", error); }
 
 				try {
-					var decoded = jwt.decode(access_token, config.jwt_secret);
-					if (decoded.id == userID) {
-						return callback(true, "Decoded ID matches with user");
-					}
-					else {
-						return callback(false, "Decoded ID represents other user");
-					}
+					var decoded_payload = jwt.decode(access_token, config.jwt_secret);
+					var user = decoded_payload.user;
+					return callback(user, "Valid token");
 				}
 				catch (error) {
 					// It has happened, that even with no (massive) error in the try section, 
@@ -102,12 +93,7 @@ module.exports = {
 					var chunkData = JSON.parse(chunk).data;
 					console.log(chunkData);
 					if (chunkData && chunkData.is_valid && chunkData.app_id == config.consumer_key) {
-						// User.findOneAndUpdate({ '_id': user._id }, { $set: { 'facebook.access_token': access_token } }, { new: true }, function (err, doc) {
-						// if (err)
-						// 	return callback(false, JSON.parse({ error: err }));
-						// else
 						return callback(true, JSON.parse(chunk).data);
-						// });
 					}
 					else
 						return callback(false, JSON.parse(chunk));

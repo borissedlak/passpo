@@ -11,21 +11,14 @@ module.exports = function (authRouter, passport) {
     //successful: redirect to main page, respond with status code 200
     //unsuccessful: stay on login site, display error message, respond with status code 401
     authRouter.post('/login', function (req, res) {
-        if(util.isNullOrEmpty(req.body.username) || util.isNullOrEmpty(req.body.password)){
+        if (util.isNullOrEmpty(req.body.username) || util.isNullOrEmpty(req.body.password)) {
             return res.status(status_codes.bad_request).json({ info: 'Login request must contain username and password in body' });
         }
         passport.authenticate('local-login', function (err, user, info) {
             if (user) {
-                req.login(user, function (err) {
-                    if (err) {
-                        return res.status(status_codes.server_error).json({ err: err }); 
-                    }
-                    else{
-                        var payload = {id: req.user._id};
-                        var token = jwt.encode(payload, config.jwt_secret);
-                        return res.status(info.status).json({ user: user, info: info.message, token: token });
-                    }
-                });
+                var payload = { id: req.user._id };
+                var token = jwt.encode(payload, config.jwt_secret);
+                return res.status(info.status).json({ user: user, info: info.message, token: token });
             }
             else
                 return res.status(info.status).json({ info: info.message });
@@ -37,23 +30,17 @@ module.exports = function (authRouter, passport) {
     //successful: redirect to login page, respond with status code 200
     //unsuccessful: stay on registration site, display error message, respond with status code 400|401
     authRouter.post('/signup', function (req, res) {
-        if(util.isNullOrEmpty(req.body.username) || util.isNullOrEmpty(req.body.password)){
+        if (util.isNullOrEmpty(req.body.username) || util.isNullOrEmpty(req.body.password)) {
             return res.status(status_codes.bad_request).json({ info: 'Signup request must contain username and password in body' });
         }
         passport.authenticate('local-signup', function (err, user, info) {
             if (user) {
-                req.login(user, function (err) {
-                    if (err)
-                        return res.status(status_codes.server_error).json({ err: err }); 
-                    else{
-                        var payload = { id: req.user._id };
-                        var token = jwt.encode(payload, config.jwt_secret);
-                        return res.status(info.status).json({ user: user, info: info.message, token: token });
-                    }
-                });
+                //How does the user object look like? Bette not include passwords here
+                var payload = { user: user, strategy: 'local' };
+                var token = jwt.encode(payload, config.jwt_secret);
+                return res.status(info.status).json({ user: user, info: info.message, token: token });
             }
-            else{
-                console.log(info);
+            else {
                 return res.status(info.status).json({ info: info.message });
             }
             //Notice that when you pass parameters to a deeper function you have to include the reference at the end as below
@@ -66,12 +53,7 @@ module.exports = function (authRouter, passport) {
     authRouter.get('/facebook/callback', function (req, res) {
         passport.authenticate('facebook', function (err, user, info) {
             if (user) {
-                req.login(user, function (err) {
-                    if (err)
-                        return res.status(status_codes.server_error).json({ err: err });
-                    else
-                        return res.status(info.status).json({ user: user, info: info.message });
-                });
+                return res.status(info.status).json({ user: user, info: info.message });
             }
             else
                 return res.status(info.status).json({ info: info.message });

@@ -26,11 +26,7 @@ module.exports = function (passport) {
 							var newUser = new User();
 							console.log(profile);
 							newUser.facebook.facebookId = profile.id;
-							// newUser.facebook.profileName = profile.displayName;
-							// newUser.facebook.access_token = accessToken;
-							// newUser.global.username = profile.name.givenName;
 							newUser.global.email = profile.emails[0].value;
-							// newUser.global.profilePicture = profile.photos[0].value;
 
 							// Save the user and check for errors
 							newUser.save(function (err) {
