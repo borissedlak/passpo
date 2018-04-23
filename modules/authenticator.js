@@ -13,15 +13,11 @@ module.exports = {
 	 */
 	isValidRequest: function (request, callback) {
 
-		/*if(!request.user){
-			//console.log(request.user);
-			return callback(false,'User data missing');
-		}*/
 
 		//console.log(request.headers.authorization);
 
 		var access_token = request.headers.authorization;
-		var user = request.user;
+		//var user = request.user;
 		var strategy = request.headers.strategy;
 		var dev_token = request.session.dev_token;
 
