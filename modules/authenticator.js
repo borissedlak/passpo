@@ -69,7 +69,6 @@ module.exports = {
 				break;
 
 			case 'local':
-
 				try {
 					var decoded_payload = jwt.decode(access_token, config.jwt_secret);
 					var user = decoded_payload.user;

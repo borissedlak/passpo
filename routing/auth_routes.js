@@ -16,12 +16,13 @@ module.exports = function (authRouter, passport) {
         }
         passport.authenticate('local-login', function (err, user, info) {
             if (user) {
-                var payload = { id: req.user._id };
+                var payload = { user: user, strategy: 'local' };
                 var token = jwt.encode(payload, config.jwt_secret);
                 return res.status(info.status).json({ user: user, info: info.message, token: token });
             }
-            else
+            else{
                 return res.status(info.status).json({ info: info.message });
+            }
 
         })(req, res);
     });
@@ -34,6 +35,9 @@ module.exports = function (authRouter, passport) {
             return res.status(status_codes.bad_request).json({ info: 'Signup request must contain username and password in body' });
         }
         passport.authenticate('local-signup', function (err, user, info) {
+            if(err){
+                return res.status(info.status).json({ info: info.message });
+            }
             if (user) {
                 //How does the user object look like? Bette not include passwords here
                 var payload = { user: user, strategy: 'local' };
@@ -52,8 +56,9 @@ module.exports = function (authRouter, passport) {
     //If the passed credentials are invalid, the callback is never accessed!
     authRouter.get('/facebook/callback', function (req, res) {
         passport.authenticate('facebook', function (err, user, info) {
+            console.log(err,user,info);
             if (user) {
-                return res.status(info.status).json({ user: user, info: info.message });
+                return res.status(info.status).json({ user: user, info: info.message, token: info.token });
             }
             else
                 return res.status(info.status).json({ info: info.message });

@@ -9,26 +9,10 @@ module.exports = function (apiRouter, authenticator) {
 
         // IDEA: I get the Id from the debug_token function, so may I use it from there instead of the param
         // --> Every request is handles as if the user is in the db
-    
+
         authenticator.isValidRequest(req, function (valid, msg) {
             if (valid) {
-                return res.status(200).json({ data: msg });
-            }
-            else {
-                return res.status(401).json({ error: msg });
-            }
-        });
-    });
-    
-    apiRouter.get('/user', function (req, res) {
-        authenticator.isValidRequest(req, function (valid, msg) {
-            if (valid) {
-                User.find(function (err, data) {
-                    if (err) {
-                        return res.status(500).json(error);
-                    }
-                    res.status(200).json(data);
-                });
+                return res.status(200).json({ data: valid });
             }
             else {
                 return res.status(401).json({ error: msg });
@@ -36,4 +20,19 @@ module.exports = function (apiRouter, authenticator) {
         });
     });
 
+    apiRouter.get('/user', function (req, res) {
+        authenticator.isValidRequest(req, function (valid, msg) {
+            if (valid) {
+                User.find(function (err, data) {
+                    if (err) {
+                        return res.status(500).json(error);
+                    }
+                    return res.status(200).json(data);
+                });
+            }
+            else {
+                return res.status(401).json({ error: msg });
+            }
+        });
+    });
 }

@@ -9,17 +9,18 @@ module.exports = function (passport) {
 	passport.use(new FacebookStrategy({
 		clientID: config.consumer_key,
 		clientSecret: config.consumer_secret,
-		callbackURL: config.callback_url,
-		profileFields: ['email', 'first_name', 'picture']
+		callbackURL: config.callback_url
 	},
 		function (accessToken, refreshToken, profile, callback) {
 			process.nextTick(function () {
+				console.log('Strategy entered');
 				User.findOne({ 'facebook.facebookId': profile.id },
 					function (err, user) {
 						if (err)
 							return callback(err, null, { status: status_codes.server_error, message: 'Internal Error' });
 						if (user) {
-							return callback(null, user, { status: status_codes.success, message: 'User found' });
+							console.log(1, accessToken);
+							return callback(null, user, { status: status_codes.success, message: 'User found', token: accessToken });
 						}
 						else {
 							// Set the user properties that came from the POST data
@@ -33,7 +34,7 @@ module.exports = function (passport) {
 								if (err)
 									return callback(err, newUser, { status: status_codes.server_error, message: 'Couldnt insert user' });
 								else
-									return callback(null, newUser, { status: status_codes.created, message: 'New user inserted' });
+									return callback(null, newUser, { status: status_codes.created, message: 'New user inserted', token: accessToken });
 							});
 						}
 					}
