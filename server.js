@@ -1,13 +1,10 @@
 // ------------- BASIC INCLUDES ------------->>
-//var url = require('url');
 var express = require('express');
 var app = express();
 var https = require('https');
 var http = require('http');
 
 var bodyParser = require('body-parser');
-//var querystring = require('querystring');
-//var async = require('async');
 var fs = require('fs');
 var mongoose = require('mongoose');
 var passport = require('passport');
@@ -36,6 +33,8 @@ storage.connect();
 app.use(require('express-session')({ secret: 'my derest secret', resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
+// var cors = require('cors')
+// app.use(cors());
 //Morgan prints all HTTP Requests into the CLI - maybe use this for debug reasons
 //app.use(require('morgan')('combined'));
 
@@ -81,29 +80,15 @@ var httpServer = http.createServer(app);
 var httpsServer = https.createServer(httpsOptions, app);
 
 
-httpServer.listen(8080);
-httpsServer.listen(8443)
+// httpServer.listen(8080, config.address, function(){
+// 	console.log("Listening on port " + 8080);
+// });
+httpsServer.listen(8443, config.address, function(){
+	console.log("Listening on port " + 8443);
+});
 
 
 // httpServer.all('*', function (req, res) {
 // 	return res.send(400).json({ error: "HTTP is not supported, use HTTPS instead" });
 // });
-
-/*var session = require('express-session');
-var csrf = require('csurf');
-
-app.use(session({
-	secret: 'My super session secret',
-	cookie: {
-		httpOnly: true,
-		secure: true
-	}
-}));
-
-app.use(csrf());
-
-app.use(function (req, res, next) {
-	res.locals._csrf = req.csrfToken();
-	next();
-});*/
 // ----------------------------------------<<
