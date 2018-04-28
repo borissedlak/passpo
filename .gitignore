@@ -6,3 +6,8 @@ tmp/
 temp/
 
 npm-debug.log*
+
+.env
+*.env
+.env.json
+*.env.json

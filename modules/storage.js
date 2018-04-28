@@ -2,14 +2,13 @@ var User = require('../models/user');
 var mongoose = require('mongoose');
 var connectionString;
 
-/*if(process.env.APP_CONFIG != null){
-	var config = JSON.parse(process.env.APP_CONFIG);
-	var mongoPassword = 'HcAftPbye2';
-	connectionString = "mongodb://" + config.mongo.user + ":" + encodeURIComponent(mongoPassword) + "@" + config.mongo.hostString;
+try{
+	connectionString = 'mongodb://' + process.env.mongo_user + ':' + process.env.mongo_pass + '@' + process.env.mongo_host;
 }
-else{*/
-	connectionString = 'mongodb://Hajibaba:abcd1234@ds036178.mlab.com:36178/passpo';
-//}
+catch (e){
+	console.log("Missing or invalid MongoDB environment variables \n" + e);
+	process.exit();
+}
 
 module.exports = {
     connect: function () {

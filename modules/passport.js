@@ -7,9 +7,9 @@ var User = require('../models/user');
 module.exports = function (passport) {
 
 	passport.use(new FacebookStrategy({
-		clientID: config.consumer_key,
-		clientSecret: config.consumer_secret,
-		callbackURL: config.callback_url
+		clientID: process.env.consumer_key,
+		clientSecret: process.env.consumer_secret,
+		callbackURL: process.env.callback_url
 	},
 		function (accessToken, refreshToken, profile, callback) {
 			process.nextTick(function () {

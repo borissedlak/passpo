@@ -17,7 +17,7 @@ module.exports = function (authRouter, passport) {
         passport.authenticate('local-login', function (err, user, info) {
             if (user) {
                 var payload = { user: user, strategy: 'local' };
-                var token = jwt.encode(payload, config.jwt_secret);
+                var token = jwt.encode(payload, process.env.jwt_secret);
                 return res.status(info.status).json({ user: user, info: info.message, token: token });
             }
             else {
@@ -41,7 +41,7 @@ module.exports = function (authRouter, passport) {
             if (user) {
                 //How does the user object look like? Bette not include passwords here
                 var payload = { user: user, strategy: 'local' };
-                var token = jwt.encode(payload, config.jwt_secret);
+                var token = jwt.encode(payload, process.env.jwt_secret);
                 return res.status(info.status).json({ user: user, info: info.message, token: token });
             }
             else {

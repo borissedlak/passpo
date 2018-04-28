@@ -46,7 +46,7 @@ module.exports = {
 				// The token is needed for the verification of the user's access token, so we definitly know that it was created by this app.
 				if (util.isNullOrEmpty(dev_token)) {
 					https.get('https://graph.facebook.com/oauth/access_token?grant_type=client_credentials&client_id=' +
-						config.consumer_key + '&client_secret=' + config.consumer_secret, function (resp) {
+						process.env.consumer_key + '&client_secret=' + process.env.consumer_secret, function (resp) {
 							resp.on('data', function (chunk) {
 								dev_token = JSON.parse(chunk).access_token;
 								request.session.dev_token = dev_token;
@@ -70,7 +70,7 @@ module.exports = {
 
 			case 'local':
 				try {
-					var decoded_payload = jwt.decode(access_token, config.jwt_secret);
+					var decoded_payload = jwt.decode(access_token, process.env.jwt_secret);
 					var user = decoded_payload.user;
 					return callback(user, "Valid token");
 				}
@@ -91,7 +91,7 @@ module.exports = {
 				resp.on('data', function (chunk) {
 					var chunkData = JSON.parse(chunk).data;
 					console.log(chunkData);
-					if (chunkData && chunkData.is_valid && chunkData.app_id == config.consumer_key) {
+					if (chunkData && chunkData.is_valid && chunkData.app_id == process.env.consumer_key) {
 						return callback(true, JSON.parse(chunk).data);
 					}
 					else

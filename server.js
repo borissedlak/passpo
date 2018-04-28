@@ -12,6 +12,7 @@ var passport = require('passport');
 // ------------------------------------------<<
 
 // --------- CUSTOM INCLUDES--------------->>
+require('dotenv').config();
 var authenticator = require('./modules/authenticator');
 var storage = require('./modules/storage');
 var util = require('./modules/util');
@@ -50,7 +51,6 @@ app.use(bodyParser.urlencoded({
  * Parses the text as JSON and exposes the resulting object on req.body.
  */
 app.use(bodyParser.json());
-
 // ----------------------------------------<<
 
 
