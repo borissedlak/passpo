@@ -13,19 +13,16 @@ module.exports = function (passport) {
 	},
 		function (accessToken, refreshToken, profile, callback) {
 			process.nextTick(function () {
-				console.log('Strategy entered');
 				User.findOne({ 'facebook.facebookId': profile.id },
 					function (err, user) {
 						if (err)
 							return callback(err, null, { status: status_codes.server_error, message: 'Internal Error' });
 						if (user) {
-							console.log(1, accessToken);
 							return callback(null, user, { status: status_codes.success, message: 'User found', token: accessToken });
 						}
 						else {
 							// Set the user properties that came from the POST data
 							var newUser = new User();
-							console.log(profile);
 							newUser.facebook.facebookId = profile.id;
 							newUser.global.email = profile.emails[0].value;
 

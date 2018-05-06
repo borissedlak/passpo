@@ -89,13 +89,12 @@ module.exports = {
 			// Verifies if the users access_token was created by the facebook application, passed in the dev_token
 			https.get('https://graph.facebook.com/debug_token?input_token=' + access_token + '&access_token=' + dev_token, function (resp) {
 				resp.on('data', function (chunk) {
-					var chunkData = JSON.parse(chunk).data;
-					console.log(chunkData);
-					if (chunkData && chunkData.is_valid && chunkData.app_id == process.env.consumer_key) {
-						return callback(true, JSON.parse(chunk).data);
-					}
-					else
-						return callback(false, JSON.parse(chunk));
+					//var facebookData = JSON.parse(chunk).data;
+					//if (facebookData && facebookData.is_valid && facebookData.app_id == process.env.consumer_key) {
+					return callback(true, JSON.parse(chunk).data);
+					// }
+					// else
+					// 	return callback(false, JSON.parse(chunk));
 				});
 			}).on("error", function (e) {
 				return callback(false, e.message);
