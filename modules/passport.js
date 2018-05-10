@@ -6,6 +6,11 @@ var User = require('../models/user');
 
 module.exports = function (passport) {
 
+	// =========================================================================
+	// FACEBOOK AUTH ===========================================================
+	// =========================================================================
+	// Defined strategy for the Passport Facebook strategy in this application
+	// Login and Signup are handled within on strategy
 	passport.use(new FacebookStrategy({
 		clientID: process.env.consumer_key,
 		clientSecret: process.env.consumer_secret,

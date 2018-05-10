@@ -10,7 +10,6 @@ var UserSchema = new mongoose.Schema({
     facebook: {
         facebookId: Number,
         profileName: String,
-        // access_token: String,
         email: String
     },
     global:{

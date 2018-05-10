@@ -9,5 +9,9 @@
 		"bad_request": 400,
 		"unauthorized": 401,
 		"server_error": 500
+	},
+
+	"error_messages":{
+		"token_missing": "Access token missing"
 	}
 }

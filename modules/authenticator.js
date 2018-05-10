@@ -13,24 +13,10 @@ module.exports = {
 	 */
 	isValidRequest: function (request, callback) {
 
-
-		//console.log(request.headers.authorization);
-
 		var access_token = request.headers.authorization;
-		//var user = request.user;
 		var strategy = request.headers.strategy;
 		var dev_token = request.session.dev_token;
 
-
-		if (util.isNullOrEmpty(access_token)) {
-			return callback(false, 'Access token missing');
-		}
-		// if (util.isNullOrEmpty(user)) {
-		// 	return callback(false, 'User object missing');
-		// }
-		// if (util.isNullOrEmpty(strategy)) {
-		// 	return callback(false, 'Specify authentication strategy eg. facebook or local');
-		// }
 
 		// This may not be a good idea according to below, but it is necessary
 		// https://stackoverflow.com/questions/39992774/verify-a-jwt-token-string-containing-bearer-with-nodejs
@@ -64,8 +50,6 @@ module.exports = {
 						return callback(valid, data);
 					})
 				}
-				// }
-				//TIME: Path 1 takes around 600ms, whereas Path 2 only takes around 250ms
 				break;
 
 			case 'local':
@@ -89,12 +73,7 @@ module.exports = {
 			// Verifies if the users access_token was created by the facebook application, passed in the dev_token
 			https.get('https://graph.facebook.com/debug_token?input_token=' + access_token + '&access_token=' + dev_token, function (resp) {
 				resp.on('data', function (chunk) {
-					//var facebookData = JSON.parse(chunk).data;
-					//if (facebookData && facebookData.is_valid && facebookData.app_id == process.env.consumer_key) {
 					return callback(true, JSON.parse(chunk).data);
-					// }
-					// else
-					// 	return callback(false, JSON.parse(chunk));
 				});
 			}).on("error", function (e) {
 				return callback(false, e.message);

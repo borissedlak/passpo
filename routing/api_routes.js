@@ -2,13 +2,19 @@ var User = require('../models/user');
 var util = require('../modules/util')
 var config = require('../config/config.json');
 const status_codes = config.http_status_codes;
+const error_messages = config.error_messages;
 
 module.exports = function (apiRouter, authenticator) {
 
     apiRouter.get('/', function (req, res) {
-
-        // IDEA: I get the Id from the debug_token function, so may I use it from there instead of the param
-        // --> Every request is handles as if the user is in the db
+        
+        /**
+         * The routing layer has to verify whether the incoming request contains all required components
+         * In this case, an access token is requried before proceeding to the authentication step
+         */
+		if (util.isNullOrEmpty(req.headers.authorization)) {
+			return res.status(400).json({ error: error_messages.token_missing });
+		}
 
         authenticator.isValidRequest(req, function (valid, msg) {
             if (valid) {
@@ -21,6 +27,11 @@ module.exports = function (apiRouter, authenticator) {
     });
 
     apiRouter.get('/user', function (req, res) {
+
+		if (util.isNullOrEmpty(req.headers.authorization)) {
+			return res.status(400).json({ error: error_messages.token_missing });
+		}
+
         authenticator.isValidRequest(req, function (valid, msg) {
             if (valid) {
                 User.find(function (err, data) {
